@@ -19,6 +19,21 @@
     "process": true
   },
 
+  "sidebars": [
+    {
+      "id": "hansjhoffman.elixir.sidebar",
+      "name": "Elixir",
+      "smallImage": "sidebarIconSmall",
+      "largeImage": "sidebarIconLarge",
+      "sections": [
+        {
+          "id": "hansjhoffman.elixir.sidebar.results",
+          "name": "Results"
+        }
+      ]
+    }
+  ],
+
   "commands": {
     "editor": [
       {

@@ -5,6 +5,9 @@ import { constVoid, pipe } from "fp-ts/function";
 import * as D from "io-ts/Decoder";
 import { match } from "ts-pattern";
 
+import { findReferences } from "./commands/findReferences";
+import { formatDocument } from "./commands/formatDocument";
+
 /*
  * Types
  */
@@ -13,6 +16,8 @@ enum ExtensionConfigKeys {
   FindReferences = "hansjhoffman.elixir.commands.findReferences",
   FormatOnSave = "hansjhoffman.elixir.config.formatOnSave",
   FormatDocument = "hansjhoffman.elixir.commands.formatDocument",
+  Sidebar = "hansjhoffman.elixir.sidebar",
+  SidebarResults = "hansjhoffman.elixir.sidebar.results",
 }
 
 interface ExtensionSettings {
@@ -39,26 +44,22 @@ interface ShutdownError {
   readonly reason: string;
 }
 
-interface InvokeFormatterError {
-  readonly _tag: "invokeFormatterError";
-  readonly reason: string;
-}
-
-interface InvokeReferencesError {
-  readonly _tag: "invokeReferencesError";
-  readonly reason: string;
-}
-
 interface ServerOptions {
-  type: "stdio" | "socket" | "pipe";
-  path: string;
-  args?: Array<string>;
-  env?: Record<string, string>;
+  readonly type: "stdio" | "socket" | "pipe";
+  readonly path: string;
+  readonly args?: Array<string>;
+  readonly env?: Record<string, string>;
+}
+
+interface ClientSettings {
+  readonly elixirLS: Readonly<{
+    dialyzerEnabled: boolean;
+  }>;
 }
 
 interface ClientOptions {
-  initializationOptions?: any;
-  syntaxes: Array<string>;
+  readonly initializationOptions: ClientSettings;
+  readonly syntaxes: Array<string>;
 }
 
 /*
@@ -74,67 +75,13 @@ const showNotification = (body: string): void => {
   }
 };
 
-const safeFindReferences = (): TE.TaskEither<InvokeReferencesError, void> => {
-  return TE.tryCatch<InvokeReferencesError, void>(
-    () => {
-      return new Promise<void>((resolve, _reject) => {
-        resolve();
-      });
-    },
-    () => ({
-      _tag: "invokeReferencesError",
-      reason: `${nova.localize("Failed to find references")}.`,
-    }),
-  );
-};
-
-const findReferences = (): void => {};
-
-const safeFormat = (
-  editor: TextEditor,
-  formatterPath: string,
-): TE.TaskEither<InvokeFormatterError, void> => {
-  return TE.tryCatch<InvokeFormatterError, void>(
-    () => {
-      return new Promise<void>((resolve, _reject) => {
-        resolve();
-      });
-    },
-    () => ({
-      _tag: "invokeFormatterError",
-      reason: `${nova.localize("Failed to format the document")}.`,
-    }),
-  );
-};
-
-const formatDocument = (editor: TextEditor): void => {
-  pipe(
-    O.some("path-to-formatter"),
-    O.fold(
-      () => console.log(`${nova.localize("Skipping")}... ${nova.localize("No formatter set")}.`),
-      (path) => {
-        safeFormat(editor, path)().then(
-          E.fold(
-            (err) => {
-              return match(err)
-                .with({ _tag: "invokeFormatterError" }, ({ reason }) => console.error(reason))
-                .exhaustive();
-            },
-            () => console.log(`${nova.localize("Formatted")} ${editor.document.path}`),
-          ),
-        );
-      },
-    ),
-  );
-};
-
 const safeStart = () => {
   return TE.sequenceSeqArray<void, MakeExecutableError | StartError>([
     TE.tryCatch<MakeExecutableError, void>(
       () => {
         return new Promise<void>((resolve, reject) => {
           const process = new Process("/usr/bin/env", {
-            args: ["chmod", "755", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
+            args: ["chmod", "u+x", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
           });
 
           process.onDidExit((status) => (status === 0 ? resolve() : reject()));
@@ -142,7 +89,7 @@ const safeStart = () => {
           process.start();
         });
       },
-      () => ({
+      (_) => ({
         _tag: "makeExecutableError",
         reason: `${nova.localize("Failed to make file executable")}.`,
       }),
@@ -156,6 +103,11 @@ const safeStart = () => {
           };
 
           const clientOptions: ClientOptions = {
+            initializationOptions: {
+              elixirLS: {
+                dialyzerEnabled: false,
+              },
+            },
             syntaxes: ["elixir"],
           };
 
@@ -190,13 +142,14 @@ const safeStart = () => {
             }),
           );
 
-          // client.start();
-          // languageClient = O.some(client);
+          client.start();
+          console.log("server started");
+          languageClient = O.some(client);
 
           resolve();
         });
       },
-      () => ({
+      (_) => ({
         _tag: "startError",
         reason: `${nova.localize("Failed to start language server")}.`,
       }),
@@ -212,13 +165,14 @@ const safeShutdown = (): TE.TaskEither<ShutdownError, void> => {
           languageClient,
           O.fold(constVoid, (client) => {
             client.stop();
+            languageClient = O.none;
           }),
         );
 
         resolve();
       });
     },
-    () => ({ _tag: "shutdownError", reason: "Uh oh... Failed to deactivate plugin." }),
+    (_) => ({ _tag: "shutdownError", reason: "Uh oh... Failed to deactivate plugin." }),
   );
 };
 
@@ -250,29 +204,25 @@ export const activate = (): void => {
   console.log(`${nova.localize("Activating")}...`);
   showNotification(`${nova.localize("Starting extension")}...`);
 
-  compositeDisposable.add(
-    nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {
-      // add saveListener
-    }),
-  );
-
-  compositeDisposable.add(
-    nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences),
-  );
-
-  compositeDisposable.add(
-    nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
-  );
+  //   compositeDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
+  //
+  //   compositeDisposable.add(
+  //     nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)),
+  //   );
+  //
+  //   compositeDisposable.add(
+  //     nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
+  //   );
 
   safeStart()().then(
     E.fold(
       (err) => {
-        match(err)
+        return match(err)
           .with({ _tag: "makeExecutableError" }, ({ reason }) => console.error(reason))
           .with({ _tag: "startError" }, ({ reason }) => console.error(reason))
           .exhaustive();
       },
-      () => console.log(`${nova.localize("Activated")} 🎉`),
+      (_) => console.log(`${nova.localize("Activated")} 🎉`),
     ),
   );
 };
@@ -280,16 +230,16 @@ export const activate = (): void => {
 export const deactivate = (): void => {
   console.log(`${nova.localize("Deactivating")}...`);
 
-  compositeDisposable.dispose();
-
   safeShutdown()().then(
     E.fold(
       (err) => {
-        match(err)
+        return match(err)
           .with({ _tag: "shutdownError" }, ({ reason }) => console.error(reason))
           .exhaustive();
       },
-      () => console.log(`${nova.localize("Deactivated. Come back soon")} :)`),
+      (_) => console.log(`${nova.localize("Deactivated. Come back soon")} :)`),
     ),
   );
+
+  compositeDisposable.dispose();
 };

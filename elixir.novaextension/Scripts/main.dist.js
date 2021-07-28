@@ -1000,6 +1000,8 @@ var ExtensionConfigKeys;
     ExtensionConfigKeys["FindReferences"] = "hansjhoffman.elixir.commands.findReferences";
     ExtensionConfigKeys["FormatOnSave"] = "hansjhoffman.elixir.config.formatOnSave";
     ExtensionConfigKeys["FormatDocument"] = "hansjhoffman.elixir.commands.formatDocument";
+    ExtensionConfigKeys["Sidebar"] = "hansjhoffman.elixir.sidebar";
+    ExtensionConfigKeys["SidebarResults"] = "hansjhoffman.elixir.sidebar.results";
 })(ExtensionConfigKeys || (ExtensionConfigKeys = {}));
 /*
  * Helpers
@@ -1012,40 +1014,17 @@ var showNotification = function (body) {
         nova.notifications.add(notification);
     }
 };
-var findReferences = function () { };
-var safeFormat = function (editor, formatterPath) {
-    return tryCatch(function () {
-        return new Promise(function (resolve, _reject) {
-            resolve();
-        });
-    }, function () { return ({
-        _tag: "invokeFormatterError",
-        reason: nova.localize("Failed to format the document") + ".",
-    }); });
-};
-var formatDocument = function (editor) {
-    pipe$1(some("path-to-formatter"), fold(function () { return console.log(nova.localize("Skipping") + "... " + nova.localize("No formatter set") + "."); }, function (path) {
-        safeFormat()().then(fold$1(function (err) {
-            return lib.match(err)
-                .with({ _tag: "invokeFormatterError" }, function (_a) {
-                var reason = _a.reason;
-                return console.error(reason);
-            })
-                .exhaustive();
-        }, function () { return console.log(nova.localize("Formatted") + " " + editor.document.path); }));
-    }));
-};
 var safeStart = function () {
     return sequenceSeqArray([
         tryCatch(function () {
             return new Promise(function (resolve, reject) {
                 var process = new Process("/usr/bin/env", {
-                    args: ["chmod", "755", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
+                    args: ["chmod", "u+x", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
                 });
                 process.onDidExit(function (status) { return (status === 0 ? resolve() : reject()); });
                 process.start();
             });
-        }, function () { return ({
+        }, function (_) { return ({
             _tag: "makeExecutableError",
             reason: nova.localize("Failed to make file executable") + ".",
         }); }),
@@ -1056,6 +1035,11 @@ var safeStart = function () {
                     type: "stdio",
                 };
                 var clientOptions = {
+                    initializationOptions: {
+                        elixirLS: {
+                            dialyzerEnabled: false,
+                        },
+                    },
                     syntaxes: ["elixir"],
                 };
                 var client = new LanguageClient("elixirLS", nova.extension.name, serverOptions, clientOptions);
@@ -1071,11 +1055,12 @@ var safeStart = function () {
                     nova.workspace.showActionPanel(message, { buttons: [nova.localize("Restart"), nova.localize("Ignore")] }, function (idx) {
                     });
                 }));
-                // client.start();
-                // languageClient = O.some(client);
+                client.start();
+                console.log("server started");
+                languageClient = some(client);
                 resolve();
             });
-        }, function () { return ({
+        }, function (_) { return ({
             _tag: "startError",
             reason: nova.localize("Failed to start language server") + ".",
         }); }),
@@ -1086,10 +1071,11 @@ var safeShutdown = function () {
         return new Promise(function (resolve, _reject) {
             pipe$1(languageClient, fold(constVoid, function (client) {
                 client.stop();
+                languageClient = none;
             }));
             resolve();
         });
-    }, function () { return ({ _tag: "shutdownError", reason: "Uh oh... Failed to deactivate plugin." }); });
+    }, function (_) { return ({ _tag: "shutdownError", reason: "Uh oh... Failed to deactivate plugin." }); });
 };
 /*
  * Main
@@ -1107,13 +1093,17 @@ var languageClient = none;
 var activate = function () {
     console.log(nova.localize("Activating") + "...");
     showNotification(nova.localize("Starting extension") + "...");
-    compositeDisposable.add(nova.workspace.onDidAddTextEditor(function (editor) {
-        // add saveListener
-    }));
-    compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences));
-    compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument));
+    //   compositeDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
+    //
+    //   compositeDisposable.add(
+    //     nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)),
+    //   );
+    //
+    //   compositeDisposable.add(
+    //     nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
+    //   );
     safeStart()().then(fold$1(function (err) {
-        lib.match(err)
+        return lib.match(err)
             .with({ _tag: "makeExecutableError" }, function (_a) {
             var reason = _a.reason;
             return console.error(reason);
@@ -1123,19 +1113,19 @@ var activate = function () {
             return console.error(reason);
         })
             .exhaustive();
-    }, function () { return console.log(nova.localize("Activated") + " \uD83C\uDF89"); }));
+    }, function (_) { return console.log(nova.localize("Activated") + " \uD83C\uDF89"); }));
 };
 var deactivate = function () {
     console.log(nova.localize("Deactivating") + "...");
-    compositeDisposable.dispose();
     safeShutdown()().then(fold$1(function (err) {
-        lib.match(err)
+        return lib.match(err)
             .with({ _tag: "shutdownError" }, function (_a) {
             var reason = _a.reason;
             return console.error(reason);
         })
             .exhaustive();
-    }, function () { return console.log(nova.localize("Deactivated. Come back soon") + " :)"); }));
+    }, function (_) { return console.log(nova.localize("Deactivated. Come back soon") + " :)"); }));
+    compositeDisposable.dispose();
 };
 
 exports.activate = activate;
