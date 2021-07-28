@@ -81,7 +81,8 @@ const safeStart = () => {
       () => {
         return new Promise<void>((resolve, reject) => {
           const process = new Process("/usr/bin/env", {
-            args: ["chmod", "u+x", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
+            args: ["chmod", "a+x", "debugger.sh", "language_server.sh", "launch.sh"],
+            cwd: nova.path.join(nova.extension.path, "elixir-ls"),
           });
 
           process.onDidExit((status) => (status === 0 ? resolve() : reject()));
@@ -91,7 +92,7 @@ const safeStart = () => {
       },
       (_) => ({
         _tag: "makeExecutableError",
-        reason: `${nova.localize("Failed to make file executable")}.`,
+        reason: `${nova.localize("Failed to make files executable")}.`,
       }),
     ),
     TE.tryCatch<StartError, void>(
@@ -143,7 +144,7 @@ const safeStart = () => {
           );
 
           client.start();
-          console.log("server started");
+
           languageClient = O.some(client);
 
           resolve();
@@ -204,15 +205,15 @@ export const activate = (): void => {
   console.log(`${nova.localize("Activating")}...`);
   showNotification(`${nova.localize("Starting extension")}...`);
 
-  //   compositeDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
-  //
-  //   compositeDisposable.add(
-  //     nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)),
-  //   );
-  //
-  //   compositeDisposable.add(
-  //     nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
-  //   );
+  compositeDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
+
+  compositeDisposable.add(
+    nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)),
+  );
+
+  compositeDisposable.add(
+    nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
+  );
 
   safeStart()().then(
     E.fold(

@@ -992,6 +992,84 @@ function isMatching(...args) {
 exports.isMatching = isMatching;
 }(lib));
 
+/**
+ * @category FunctorWithIndex
+ * @since 2.0.0
+ */
+var mapWithIndex = function (f) { return function (fa) {
+    return fa.map(function (a, i) { return f(i, a); });
+}; };
+
+/*
+ * Helpers
+ */
+var rangeToLspRange = function (document, range) {
+    pipe$1(document.getTextInRange(new Range(0, document.length)), function (content) { return content.split(document.eol); }, mapWithIndex(function (idx, line) {
+        line.length + document.eol.length;
+    }));
+    return {
+        line: "0",
+        character: "0",
+    };
+};
+/*
+ * Main
+ */
+var safeFindReferences = function (client, editor) {
+    return tryCatch(function () {
+        editor.selectedRange;
+        editor.selectedText;
+        return client
+            .sendRequest("textDocument/references", {
+            textDocument: { uri: editor.document.uri },
+            position: rangeToLspRange(editor.document),
+            context: { includeDeclaration: false },
+        })
+            .then(function () { });
+    }, function () { return ({
+        _tag: "invokeReferencesError",
+        reason: nova.localize("Failed to find references") + ".",
+    }); });
+};
+var findReferences = function (client) {
+    return function (editor) {
+        pipe$1(client, fold(function () { return console.log(nova.localize("Skipping. No Langunage Client running.") + "."); }, function (client_) {
+            safeFindReferences(client_, editor)().then(fold$1(function (err) {
+                return lib.match(err)
+                    .with({ _tag: "invokeReferencesError" }, function (_a) {
+                    var reason = _a.reason;
+                    return console.error(reason);
+                })
+                    .exhaustive();
+            }, function () { return console.log(nova.localize("View sidebar for results") + "."); }));
+        }));
+    };
+};
+
+/*
+ * Main
+ */
+var safeFormat = function (editor) {
+    return tryCatch(function () {
+        return new Promise(function (resolve, _reject) {
+            resolve();
+        });
+    }, function () { return ({
+        _tag: "invokeFormatterError",
+        reason: nova.localize("Failed to format the document") + ".",
+    }); });
+};
+var formatDocument = function (editor) {
+    safeFormat()().then(fold$1(function (err) {
+        return lib.match(err)
+            .with({ _tag: "invokeFormatterError" }, function (_a) {
+            var reason = _a.reason;
+            return console.error(reason);
+        })
+            .exhaustive();
+    }, function () { return console.log(nova.localize("Formatted") + " " + editor.document.path); }));
+};
+
 /*
  * Types
  */
@@ -1019,14 +1097,15 @@ var safeStart = function () {
         tryCatch(function () {
             return new Promise(function (resolve, reject) {
                 var process = new Process("/usr/bin/env", {
-                    args: ["chmod", "u+x", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
+                    args: ["chmod", "a+x", "debugger.sh", "language_server.sh", "launch.sh"],
+                    cwd: nova.path.join(nova.extension.path, "elixir-ls"),
                 });
                 process.onDidExit(function (status) { return (status === 0 ? resolve() : reject()); });
                 process.start();
             });
         }, function (_) { return ({
             _tag: "makeExecutableError",
-            reason: nova.localize("Failed to make file executable") + ".",
+            reason: nova.localize("Failed to make files executable") + ".",
         }); }),
         tryCatch(function () {
             return new Promise(function (resolve, _reject) {
@@ -1093,15 +1172,9 @@ var languageClient = none;
 var activate = function () {
     console.log(nova.localize("Activating") + "...");
     showNotification(nova.localize("Starting extension") + "...");
-    //   compositeDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
-    //
-    //   compositeDisposable.add(
-    //     nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)),
-    //   );
-    //
-    //   compositeDisposable.add(
-    //     nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
-    //   );
+    compositeDisposable.add(nova.workspace.onDidAddTextEditor(function (editor) { }));
+    compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)));
+    compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument));
     safeStart()().then(fold$1(function (err) {
         return lib.match(err)
             .with({ _tag: "makeExecutableError" }, function (_a) {
