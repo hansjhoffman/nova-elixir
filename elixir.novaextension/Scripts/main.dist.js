@@ -9,6 +9,26 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function identity(a) {
     return a;
 }
+/**
+ * @since 2.0.0
+ */
+function constant(a) {
+    return function () { return a; };
+}
+/**
+ * A thunk that returns always `undefined`.
+ *
+ * @since 2.0.0
+ */
+var constUndefined = 
+/*#__PURE__*/
+constant(undefined);
+/**
+ * A thunk that returns always `void`.
+ *
+ * @since 2.0.0
+ */
+var constVoid = constUndefined;
 function flow(ab, bc, cd, de, ef, fg, gh, hi, ij) {
     switch (arguments.length) {
         case 1:
@@ -1055,7 +1075,8 @@ var safeStart = function () {
                     nova.workspace.showActionPanel(message, { buttons: [nova.localize("Restart"), nova.localize("Ignore")] }, function (idx) {
                     });
                 }));
-                client.start();
+                // client.start();
+                // languageClient = O.some(client);
                 resolve();
             });
         }, function () { return ({
@@ -1067,6 +1088,9 @@ var safeStart = function () {
 var safeShutdown = function () {
     return tryCatch(function () {
         return new Promise(function (resolve, _reject) {
+            pipe$1(languageClient, fold(constVoid, function (client) {
+                client.stop();
+            }));
             resolve();
         });
     }, function () { return ({ _tag: "shutdownError", reason: "Uh oh... Failed to deactivate plugin." }); });
@@ -1083,6 +1107,7 @@ var safeShutdown = function () {
     },
 });
 var compositeDisposable = new CompositeDisposable();
+var languageClient = none;
 var activate = function () {
     console.log(nova.localize("Activating") + "...");
     showNotification(nova.localize("Starting extension") + "...");

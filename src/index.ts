@@ -1,7 +1,7 @@
 import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
-import { pipe } from "fp-ts/function";
+import { constVoid, pipe } from "fp-ts/function";
 import * as D from "io-ts/Decoder";
 import { match } from "ts-pattern";
 
@@ -134,11 +134,7 @@ const safeStart = () => {
       () => {
         return new Promise<void>((resolve, reject) => {
           const process = new Process("/usr/bin/env", {
-            args: [
-              "chmod",
-              "755",
-              nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
-            ],
+            args: ["chmod", "755", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
           });
 
           process.onDidExit((status) => (status === 0 ? resolve() : reject()));
@@ -194,7 +190,8 @@ const safeStart = () => {
             }),
           );
 
-          client.start();
+          // client.start();
+          // languageClient = O.some(client);
 
           resolve();
         });
@@ -211,6 +208,13 @@ const safeShutdown = (): TE.TaskEither<ShutdownError, void> => {
   return TE.tryCatch<ShutdownError, void>(
     () => {
       return new Promise<void>((resolve, _reject) => {
+        pipe(
+          languageClient,
+          O.fold(constVoid, (client) => {
+            client.stop();
+          }),
+        );
+
         resolve();
       });
     },
@@ -240,6 +244,7 @@ let configs: ExtensionSettings = {
 };
 
 const compositeDisposable: CompositeDisposable = new CompositeDisposable();
+let languageClient: O.Option<LanguageClient> = O.none;
 
 export const activate = (): void => {
   console.log(`${nova.localize("Activating")}...`);
