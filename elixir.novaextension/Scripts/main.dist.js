@@ -1040,11 +1040,7 @@ var safeStart = function () {
         tryCatch(function () {
             return new Promise(function (resolve, reject) {
                 var process = new Process("/usr/bin/env", {
-                    args: [
-                        "chmod",
-                        "755",
-                        nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
-                    ],
+                    args: ["chmod", "755", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
                 });
                 process.onDidExit(function (status) { return (status === 0 ? resolve() : reject()); });
                 process.start();
