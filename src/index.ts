@@ -1,3 +1,3 @@
-export const activate = () => {}
+export const activate = () => {};
 
-export const deactivate = () => {}
+export const deactivate = () => {};
