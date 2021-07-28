@@ -977,6 +977,7 @@ exports.isMatching = isMatching;
  */
 var ExtensionConfigKeys;
 (function (ExtensionConfigKeys) {
+    ExtensionConfigKeys["FindReferences"] = "hansjhoffman.elixir.commands.findReferences";
     ExtensionConfigKeys["FormatOnSave"] = "hansjhoffman.elixir.config.formatOnSave";
     ExtensionConfigKeys["FormatDocument"] = "hansjhoffman.elixir.commands.formatDocument";
 })(ExtensionConfigKeys || (ExtensionConfigKeys = {}));
@@ -991,6 +992,7 @@ var showNotification = function (body) {
         nova.notifications.add(notification);
     }
 };
+var findReferences = function () { };
 var safeFormat = function (editor, formatterPath) {
     return tryCatch(function () {
         return new Promise(function (resolve, _reject) {
@@ -1017,8 +1019,12 @@ var safeStart = function () {
     return sequenceSeqArray([
         tryCatch(function () {
             return new Promise(function (resolve, reject) {
-                var process = new Process("chmod", {
-                    args: ["755", nova.path.join(nova.extension.path, "elixir-ls/language_server.sh")],
+                var process = new Process("/usr/bin/env", {
+                    args: [
+                        "chmod",
+                        "755",
+                        nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
+                    ],
                 });
                 process.onDidExit(function (status) { return (status === 0 ? resolve() : reject()); });
                 process.start();
@@ -1030,7 +1036,7 @@ var safeStart = function () {
         tryCatch(function () {
             return new Promise(function (resolve, _reject) {
                 var serverOptions = {
-                    path: nova.path.join(nova.extension.path, "elixir-ls/language_server.sh"),
+                    path: nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
                     type: "stdio",
                 };
                 var clientOptions = {
@@ -1083,9 +1089,10 @@ var activate = function () {
     compositeDisposable.add(nova.workspace.onDidAddTextEditor(function (editor) {
         // add saveListener
     }));
+    compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences));
     compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument));
     safeStart()().then(fold$1(function (err) {
-        return lib.match(err)
+        lib.match(err)
             .with({ _tag: "makeExecutableError" }, function (_a) {
             var reason = _a.reason;
             return console.error(reason);
@@ -1095,8 +1102,7 @@ var activate = function () {
             return console.error(reason);
         })
             .exhaustive();
-    }, function () { }));
-    console.log(nova.localize("Activated") + " \uD83C\uDF89");
+    }, function () { return console.log(nova.localize("Activated") + " \uD83C\uDF89"); }));
 };
 var deactivate = function () {
     console.log(nova.localize("Deactivating") + "...");

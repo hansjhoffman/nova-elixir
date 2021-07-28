@@ -10,6 +10,7 @@ import { match } from "ts-pattern";
  */
 
 enum ExtensionConfigKeys {
+  FindReferences = "hansjhoffman.elixir.commands.findReferences",
   FormatOnSave = "hansjhoffman.elixir.config.formatOnSave",
   FormatDocument = "hansjhoffman.elixir.commands.formatDocument",
 }
@@ -43,6 +44,11 @@ interface InvokeFormatterError {
   readonly reason: string;
 }
 
+interface InvokeReferencesError {
+  readonly _tag: "invokeReferencesError";
+  readonly reason: string;
+}
+
 interface ServerOptions {
   type: "stdio" | "socket" | "pipe";
   path: string;
@@ -67,6 +73,22 @@ const showNotification = (body: string): void => {
     nova.notifications.add(notification);
   }
 };
+
+const safeFindReferences = (): TE.TaskEither<InvokeReferencesError, void> => {
+  return TE.tryCatch<InvokeReferencesError, void>(
+    () => {
+      return new Promise<void>((resolve, _reject) => {
+        resolve();
+      });
+    },
+    () => ({
+      _tag: "invokeReferencesError",
+      reason: `${nova.localize("Failed to find references")}.`,
+    }),
+  );
+};
+
+const findReferences = (): void => {};
 
 const safeFormat = (
   editor: TextEditor,
@@ -111,8 +133,12 @@ const safeStart = () => {
     TE.tryCatch<MakeExecutableError, void>(
       () => {
         return new Promise<void>((resolve, reject) => {
-          const process = new Process("chmod", {
-            args: ["755", nova.path.join(nova.extension.path, "elixir-ls/language_server.sh")],
+          const process = new Process("/usr/bin/env", {
+            args: [
+              "chmod",
+              "755",
+              nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
+            ],
           });
 
           process.onDidExit((status) => (status === 0 ? resolve() : reject()));
@@ -129,7 +155,7 @@ const safeStart = () => {
       () => {
         return new Promise<void>((resolve, _reject) => {
           const serverOptions: ServerOptions = {
-            path: nova.path.join(nova.extension.path, "elixir-ls/language_server.sh"),
+            path: nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
             type: "stdio",
           };
 
@@ -137,7 +163,7 @@ const safeStart = () => {
             syntaxes: ["elixir"],
           };
 
-          const client = new LanguageClient(
+          const client: LanguageClient = new LanguageClient(
             "elixirLS",
             nova.extension.name,
             serverOptions,
@@ -226,21 +252,24 @@ export const activate = (): void => {
   );
 
   compositeDisposable.add(
+    nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences),
+  );
+
+  compositeDisposable.add(
     nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
   );
 
   safeStart()().then(
     E.fold(
-      (err) =>
+      (err) => {
         match(err)
           .with({ _tag: "makeExecutableError" }, ({ reason }) => console.error(reason))
           .with({ _tag: "startError" }, ({ reason }) => console.error(reason))
-          .exhaustive(),
-      () => {},
+          .exhaustive();
+      },
+      () => console.log(`${nova.localize("Activated")} 🎉`),
     ),
   );
-
-  console.log(`${nova.localize("Activated")} 🎉`);
 };
 
 export const deactivate = (): void => {

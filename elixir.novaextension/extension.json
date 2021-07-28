@@ -22,9 +22,18 @@
   "commands": {
     "editor": [
       {
+        "title": "Find References",
+        "command": "hansjhoffman.elixir.commands.findReferences",
+        "filters": {
+          "syntaxes": ["elixir", "ex", "exs", "eex"]
+        }
+      },
+      {
         "title": "Format Document",
         "command": "hansjhoffman.elixir.commands.formatDocument",
-        "when": "editorSyntax == 'ex' || editorSyntax == 'exs'"
+        "filters": {
+          "syntaxes": ["elixir", "ex", "exs", "eex"]
+        }
       }
     ]
   }
