@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<syntax name="elixir">
+    <meta>
+        <name>Elixir</name>
+        <type>script</type>
+        <preferred-file-extension>ex</preferred-file-extension>
+        <scriptable shebang="#!/usr/bin/env elixir" />
+    </meta>
+    
+    <detectors>
+        <extension priority="1.0">ex,exs</extension>
+    </detectors>
+    
+    <indentation>
+        <increase>
+            <expression></expression>
+        </increase>
+        <decrease>
+            <expression></expression>
+        </decrease>
+    </indentation>
+    
+    <comments>
+        <single>
+            <expression>#</expression>
+        </single>
+    </comments>
+    
+    <brackets>
+        <pair open="{" close="}" />
+        <pair open="[" close="]" />
+        <pair open="(" close=")" />
+        <pair open="&lt;&lt;" close="&gt;&gt;" />
+    </brackets>
+    
+    <surrounding-pairs>
+        <pair open="{" close="}" />
+        <pair open="[" close="]" />
+        <pair open="(" close=")" />
+        <pair open="&apos;" close="&apos;" />
+        <pair open="&quot;" close="&quot;" />
+    </surrounding-pairs>
+    
+    <scopes>
+        <include syntax="self" collection="comments" />
+        <include syntax="self" collection="definitions" />
+        <include syntax="self" collection="keywords" />
+        <include syntax="self" collection="values" />
+        <include syntax="self" collection="identifiers" />
+        <include syntax="self" collection="syntax" />
+    </scopes>
+    
+    <collections>
+        <!-- 
+                                                                                          .            
+                                                                                        .o8            
+        .ooooo.   .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .ooooo.  ooo. .oo.   .o888oo  .oooo.o 
+        d88' `"Y8 d88' `88b `888P"Y88bP"Y88b  `888P"Y88bP"Y88b  d88' `88b `888P"Y88b    888   d88(  "8 
+        888       888   888  888   888   888   888   888   888  888ooo888  888   888    888   `"Y88b.  
+        888   .o8 888   888  888   888   888   888   888   888  888    .o  888   888    888 . o.  )88b 
+        `Y8bod8P' `Y8bod8P' o888o o888o o888o o888o o888o o888o `Y8bod8P' o888o o888o   "888" 8""888P' 
+        -->
+        <collection name="comments">
+            <scope name="elixir.comment.single" spell-check="true">
+                <expression>(\#)(.*)$</expression>
+                <capture number="1" name="elixir.puncuation.definition.begin" />
+                <capture number="2" name="elixir.comment.content" />
+            </scope>
+        </collection>
+        
+        <!-- 
+              .o8             .o88o.  o8o               o8o      .    o8o                                 
+             "888             888 `"  `"'               `"'    .o8    `"'                                 
+         .oooo888   .ooooo.  o888oo  oooo  ooo. .oo.   oooo  .o888oo oooo   .ooooo.  ooo. .oo.    .oooo.o 
+        d88' `888  d88' `88b  888    `888  `888P"Y88b  `888    888   `888  d88' `88b `888P"Y88b  d88(  "8 
+        888   888  888ooo888  888     888   888   888   888    888    888  888   888  888   888  `"Y88b.  
+        888   888  888    .o  888     888   888   888   888    888 .  888  888   888  888   888  o.  )88b 
+        `Y8bod88P" `Y8bod8P' o888o   o888o o888o o888o o888o   "888" o888o `Y8bod8P' o888o o888o 8""888P' 
+        -->
+        <collection name="definitions">
+            <scope name="elixir.import">
+                <starts-with>
+                    <expression>\b(alias|import|require|use)\b</expression>
+                    <capture number="0" name="elixir.keyword" />
+                </starts-with>
+                <ends-with>
+                    <expression>$</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="elixir.keyword">
+                        <expression>as:</expression>
+                    </scope>
+                    <scope name="elixir.import.identifier.symbol">
+                        <symbol type="package" scope="external" />
+                        <expression>([a-zA-Z][a-zA-Z0-9\-_\.]+)</expression>
+                    </scope>
+                    <scope name="elixir.separator">
+                        <expression>,</expression>
+                    </scope>
+                    <!-- <include syntax="self" collection="values" /> -->
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <!-- 
+            oooo                                                                        .o8           
+            `888                                                                       "888           
+             888  oooo   .ooooo.  oooo    ooo oooo oooo    ooo  .ooooo.  oooo d8b  .oooo888   .oooo.o 
+             888 .8P'   d88' `88b  `88.  .8'   `88. `88.  .8'  d88' `88b `888""8P d88' `888  d88(  "8 
+             888888.    888ooo888   `88..8'     `88..]88..8'   888   888  888     888   888  `"Y88b.  
+             888 `88b.  888    .o    `888'       `888'`888'    888   888  888     888   888  o.  )88b 
+            o888o o888o `Y8bod8P'     .8'         `8'  `8'     `Y8bod8P' d888b    `Y8bod88P" 8""888P' 
+                                  .o..P'                                                              
+                                  `Y8P'                                                               
+        -->
+        <collection name="keywords">
+            <scope name="elixir.keyword">
+                <strings>
+                    <string>after</string>
+                    <string>assert</string>
+                    <string>case</string>
+                    <string>cond</string>
+                    <string>catch</string>
+                    <string>def</string>
+                    <string>defdelegate</string>
+                    <string>defguard</string>
+                    <string>defguardp</string>
+                    <string>defimpl</string>
+                    <string>defmacro</string>
+                    <string>defmodule</string>
+                    <string>defp</string>
+                    <string>defprotocol</string>
+                    <string>defstruct</string>
+                    <string>describe</string>
+                    <string>do</string>
+                    <string>else</string>
+                    <string>end</string>
+                    <string>fn</string>
+                    <string>if</string>
+                    <string>quote</string>
+                    <string>receive</string>
+                    <string>rescue</string>
+                    <string>test</string>
+                    <string>try</string>
+                    <string>unquote</string>
+                    <string>with</string>
+                </strings>
+            </scope>
+        </collection>
+        
+        <!--
+                              oooo                                 
+                              `888                                 
+        oooo    ooo  .oooo.    888  oooo  oooo   .ooooo.   .oooo.o 
+         `88.  .8'  `P  )88b   888  `888  `888  d88' `88b d88(  "8 
+          `88..8'    .oP"888   888   888   888  888ooo888 `"Y88b.  
+           `888'    d8(  888   888   888   888  888    .o o.  )88b 
+            `8'     `Y888""8o o888o  `V88V"V8P' `Y8bod8P' 8""888P'                                  
+        -->
+        <collection name="values">
+            <scope name="elixir.value.boolean">
+                <strings>
+                    <string>true</string>
+                    <string>false</string>
+                </strings>
+            </scope>
+            <scope name="elixir.value.null">
+                <strings>
+                    <string>nil</string>
+                </strings>
+            </scope>
+            <scope name="elixir.value.number.hex">
+                <expression>\b0x[a-fA-F0-9]+\b</expression>
+            </scope>
+            <scope name="elixir.value.number.oct">
+                <expression>\b0o[0-7]+\b</expression>
+            </scope>
+            <scope name="elixir.value.number">
+                <expression>\b\-?(?:\d+(?:\.\d)?|(?:\.\d+))\b</expression>
+                <!-- needs to handle _ as possible character e.g. 10_000 -->
+            </scope>
+            <scope name="elixir.value.list">
+                <symbol type="expression">
+                    <context behavior="subtree" />
+                </symbol>
+                <starts-with>
+                    <expression>\[</expression>
+                    <capture number="0" name="elixir.bracket" />
+                </starts-with>
+                <ends-with>
+                    <expression>\]</expression>
+                    <capture number="0" name="elixir.bracket" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="comments" />
+                    <include syntax="self" collection="values" />
+                    <include syntax="self" collection="identifiers" />
+                    <include syntax="self" collection="syntax" />
+                </subscopes>
+            </scope>
+            <scope name="elixir.value.tuple">
+                <symbol type="expression">
+                    <context behavior="subtree" />
+                </symbol>
+                <starts-with>
+                    <expression>\{</expression>
+                    <capture number="0" name="elixir.bracket" />
+                </starts-with>
+                <ends-with>
+                    <expression>\}</expression>
+                    <capture number="0" name="elixir.bracket" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="comments" />
+                    <include syntax="self" collection="values" />
+                    <include syntax="self" collection="identifiers" />
+                    <include syntax="self" collection="syntax" />
+                </subscopes>
+            </scope>
+            <scope name="elixir.value.map">
+                <symbol type="struct">
+                    <context behavior="subtree" />
+                </symbol>
+                <starts-with>
+                    <expression>\%\{</expression>
+                    <capture number="0" name="elixir.bracket" />
+                </starts-with>
+                <ends-with>
+                    <expression>\}</expression>
+                    <capture number="0" name="elixir.bracket" />
+                </ends-with>
+                <subscopes>
+                    <scope name="elixir.operator">
+                        <expression>\s(\=&gt;)\s</expression>
+                        <capture number="1" name="elixir.operator" />
+                    </scope>
+                    <include syntax="self" collection="comments" />
+                    <include syntax="self" collection="values" />
+                    <include syntax="self" collection="identifiers" />
+                    <include syntax="self" collection="syntax" />
+                </subscopes>
+            </scope>
+            <include syntax="self" collection="strings" />
+        </collection>
+        
+        <!-- 
+             o8o        .o8                            .    o8o   .o88o.  o8o                              
+             `"'       "888                          .o8    `"'   888 `"  `"'                              
+            oooo   .oooo888   .ooooo.  ooo. .oo.   .o888oo oooo  o888oo  oooo   .ooooo.  oooo d8b  .oooo.o 
+            `888  d88' `888  d88' `88b `888P"Y88b    888   `888   888    `888  d88' `88b `888""8P d88(  "8 
+             888  888   888  888ooo888  888   888    888    888   888     888  888ooo888  888     `"Y88b.  
+             888  888   888  888    .o  888   888    888 .  888   888     888  888    .o  888     o.  )88b 
+            o888o `Y8bod88P" `Y8bod8P' o888o o888o   "888" o888o o888o   o888o `Y8bod8P' d888b    8""888P' 
+        -->
+        <collection name="identifiers">
+            <scope name="elixir.identifier.variable.instance">
+                <expression>@[a-z][A-Za-z0-9_]*</expression>
+            </scope>
+            <scope name="elixir.function.typespec">
+                <starts-with>
+                    <expression>(@spec|@type)</expression>
+                    <capture number="0" name="elixir.identifier.typespec" />
+                </starts-with>
+                <ends-with>
+                    <expression>^\S</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="elixir.operator">
+                        <expression>::</expression>
+                    </scope>
+                    <scope name="elixir.operator">
+                        <expression>\-></expression>
+                    </scope>
+                </subscopes>
+            </scope>
+            <!-- <scope name="elixir.identifier.module.submodule">
+                <expression>\b(?&lt;=\.)([a-zA-Z_][a-zA-Z0-9_]*)(?!\()\b</expression>
+            </scope> -->
+            <!-- <scope name="elixir.identifier.function">
+                <expression>\b(?&lt;!\.)([a-zA-Z_][a-zA-Z0-9_]*)(?=\()\b</expression>
+                needs to be updated to not be preceeded by ~ for sigils
+            </scope> -->
+            <scope name="elixir.identifier.constant.atom">
+                <expression>(:\w+)\b</expression>
+            </scope>
+        </collection>
+        
+        <!--
+                     .             o8o                                  
+                   .o8             `"'                                  
+         .oooo.o .o888oo oooo d8b oooo  ooo. .oo.    .oooooooo  .oooo.o 
+        d88(  "8   888   `888""8P `888  `888P"Y88b  888' `88b  d88(  "8 
+        `"Y88b.    888    888      888   888   888  888   888  `"Y88b.  
+        o.  )88b   888 .  888      888   888   888  `88bod8P'  o.  )88b 
+        8""888P'   "888" d888b    o888o o888o o888o `8oooooo.  8""888P' 
+                                                    d"     YD           
+                                                    "Y88888P'  
+        -->
+        <collection name="strings">
+            <scope name="elixir.string.multiline" spell-check="true">
+                <symbol type="comment">
+                    <context behavior="subtree" />
+                </symbol>
+                <starts-with>
+                    <expression>&quot;&quot;&quot;</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>&quot;&quot;&quot;</expression>
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.double-quoted">
+                <starts-with>
+                    <expression>&quot;</expression>
+                    <capture number="0" name="elixir.string.double-quoted.delimiter" />
+                </starts-with>
+                <ends-with>
+                    <expression>(?:[^&quot;\\]|\\.)*(&quot;|$)</expression>
+                    <capture number="1" name="elixir.string.double-quoted.delimiter" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="string-interpolation" />
+                </subscopes>
+            </scope>
+        </collection>
+        <collection name="string-interpolation">
+            <scope name="elixir.string.interpolation">
+                <!-- <expression>\#\{.*?\}</expression> -->
+                <starts-with>
+                    <expression>(\#\{)</expression>
+                    <capture number="0" name="elixir.string-interpolation" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="0" name="elixir.string-interpolation" />
+                </ends-with>
+                <subscopes>
+                    <!-- <include syntax="self" collection="values" /> -->
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <!--
+                                             .                         
+                                           .o8
+        .oooo.o oooo    ooo ooo. .oo.   .o888oo  .oooo.   oooo    ooo 
+        d88(  "8  `88.  .8'  `888P"Y88b    888   `P  )88b   `88b..8P'  
+        `"Y88b.    `88..8'    888   888    888    .oP"888     Y888'    
+        o.  )88b    `888'     888   888    888 . d8(  888   .o8"'88b   
+        8""888P'     .8'     o888o o888o   "888" `Y888""8o o88'   888o 
+                 .o..P'                                                
+                 `Y8P'
+        -->
+        <collection name="syntax">
+            <!-- Brackets -->
+            <scope name="elixir.bracket">
+                <expression>(\{ | \})</expression>
+            </scope>
+            <scope name="elixir.bracket">
+                <expression>(\[ | \])</expression>
+            </scope>
+            <scope name="elixir.bracket">
+                <expression>(\( | \))</expression>
+            </scope>
+            
+            <!-- Operators https://hexdocs.pm/elixir/1.12/operators.html#general-operators -->
+            <scope name="elixir.operator">
+                <expression>\s\=\s</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\=\=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\=\=\=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\=~</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>!\=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\+\=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\-\=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\*\=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&lt;=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&gt;=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>%\=</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\+</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\-</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\*</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\*\*</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\/</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b%\b</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&lt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&lt;&lt;&lt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&gt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&gt;&gt;&gt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>(and | &amp;&amp; | &amp;&amp;&amp;)</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b(or | \|\| | \|\|\|)\b</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\!</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b(not)\b</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b(in | not in)\b</expression>
+            </scope>
+            <scope name="elixir.operator.pin">
+                <expression>\^</expression>
+            </scope>
+            <scope name="elixir.operator.capture">
+                <expression>&amp;</expression>
+            </scope>
+            <scope name="elixir.operator.pipeline">
+                <expression>\|></expression>
+            </scope>
+            <scope name="elixir.operator.binary-concatenation">
+                <expression>&lt;&gt;</expression>
+            </scope>
+            <scope name="elixir.operator.type">
+                <expression>::</expression>
+            </scope>
+        </collection>
+    </collections>
+</syntax>

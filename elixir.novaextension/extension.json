@@ -1,0 +1,21 @@
+{
+  "identifier": "hansjhoffman.elixir",
+  "name": "Elixir",
+  "organization": "@hansjhoffman",
+  "description": "Provides syntax highlighting and formatting for Elixir.",
+  "version": "0.1.0",
+  "categories": [
+    "languages"
+  ],
+  "license": "MIT",
+  "repository": "git@github.com:hansjhoffman/nova-elixir.git",
+  "bugs": {
+    "url": "https://github.com/hansjhoffman/nova-elixir/issues"
+  },
+  
+  "main": "main.dist.js",
+  
+  "activationEvents": [
+    "onLanguage:nix"
+  ],
+}

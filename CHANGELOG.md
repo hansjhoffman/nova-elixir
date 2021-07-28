@@ -1,0 +1,1 @@
+elixir.novaextension/CHANGELOG.md
