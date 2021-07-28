@@ -4,18 +4,37 @@
   "organization": "@hansjhoffman",
   "description": "Provides syntax highlighting and formatting for Elixir.",
   "version": "0.1.0",
-  "categories": [
-    "languages"
-  ],
+  "categories": ["commands", "completions", "formatters", "languages"],
   "license": "MIT",
   "repository": "git@github.com:hansjhoffman/nova-elixir.git",
   "bugs": {
     "url": "https://github.com/hansjhoffman/nova-elixir/issues"
   },
-  
+
   "main": "main.dist.js",
-  
-  "activationEvents": [
-    "onLanguage:nix"
-  ],
+
+  "activationEvents": ["onWorkspaceContains:mix.exs", "onLanguage:elixir"],
+
+  "entitlements": {
+    "process": true
+  },
+
+  "commands": {
+    "editor": [
+      {
+        "title": "Find References",
+        "command": "hansjhoffman.elixir.commands.findReferences",
+        "filters": {
+          "syntaxes": ["elixir", "ex", "exs", "eex"]
+        }
+      },
+      {
+        "title": "Format Document",
+        "command": "hansjhoffman.elixir.commands.formatDocument",
+        "filters": {
+          "syntaxes": ["elixir", "ex", "exs", "eex"]
+        }
+      }
+    ]
+  }
 }
