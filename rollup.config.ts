@@ -6,7 +6,7 @@ export default {
   input: "src/index.ts",
   plugins: [typescript(), commonjs(), resolve()],
   output: {
-    file: "elm.novaextension/Scripts/main.dist.js",
+    file: "elixir.novaextension/Scripts/main.dist.js",
     sourcemap: true,
     format: "cjs",
   },
