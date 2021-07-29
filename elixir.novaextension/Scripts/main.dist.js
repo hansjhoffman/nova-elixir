@@ -1047,27 +1047,67 @@ var findReferences = function (client) {
 };
 
 /*
+ * Helpers
+ */
+var lspRangeToNovaRange = function (document, range) {
+    var fullContents = document.getTextInRange(new Range(0, document.length));
+    var rangeStart = 0;
+    var rangeEnd = 0;
+    var chars = 0;
+    var lines = fullContents.split(document.eol);
+    for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+        var lineLength = lines[lineIndex].length + document.eol.length;
+        if (range.start.line === lineIndex) {
+            rangeStart = chars + range.start.character;
+        }
+        if (range.end.line === lineIndex) {
+            rangeEnd = chars + range.end.character;
+            break;
+        }
+        chars += lineLength;
+    }
+    return new Range(rangeStart, rangeEnd);
+};
+/*
  * Main
  */
-var safeFormat = function (editor) {
+var safeFormat = function (client, editor) {
     return tryCatch(function () {
-        return new Promise(function (resolve, _reject) {
-            resolve();
+        // return new Promise<void>((resolve, reject) => {
+        return client
+            .sendRequest("textDocument/formatting", {
+            textDocument: { uri: editor.document.uri },
+            options: {},
+        })
+            .then(function (result) {
+            editor.edit(function (edit) {
+                result.map(function (r) {
+                    var novaRange = lspRangeToNovaRange(editor.document, r.range);
+                    edit.replace(novaRange, r.newText);
+                });
+            });
+            // resolve();
         });
+        //     .catch(() => reject());
+        // });
     }, function () { return ({
         _tag: "invokeFormatterError",
         reason: nova.localize("Failed to format the document") + ".",
     }); });
 };
-var formatDocument = function (editor) {
-    safeFormat()().then(fold$1(function (err) {
-        return lib.match(err)
-            .with({ _tag: "invokeFormatterError" }, function (_a) {
-            var reason = _a.reason;
-            return console.error(reason);
-        })
-            .exhaustive();
-    }, function () { return console.log(nova.localize("Formatted") + " " + editor.document.path); }));
+var formatDocument = function (languageClient) {
+    return function (editor) {
+        pipe$1(languageClient, fold(function () { return console.log(nova.localize("Skipping. No Langunage Client running.") + "."); }, function (client) {
+            safeFormat(client, editor)().then(fold$1(function (err) {
+                return lib.match(err)
+                    .with({ _tag: "invokeFormatterError" }, function (_a) {
+                    var reason = _a.reason;
+                    return console.error(reason);
+                })
+                    .exhaustive();
+            }, function () { return console.log(nova.localize("Formatted") + " " + editor.document.path); }));
+        }));
+    };
 };
 
 /*
@@ -1116,7 +1156,9 @@ var safeStart = function () {
                 var clientOptions = {
                     initializationOptions: {
                         elixirLS: {
-                            dialyzerEnabled: false,
+                            dialyzerEnabled: true,
+                            fetchDeps: true,
+                            mixEnv: "test",
                         },
                     },
                     syntaxes: ["elixir"],
@@ -1135,7 +1177,6 @@ var safeStart = function () {
                     });
                 }));
                 client.start();
-                console.log("server started");
                 languageClient = some(client);
                 resolve();
             });
@@ -1173,8 +1214,6 @@ var activate = function () {
     console.log(nova.localize("Activating") + "...");
     showNotification(nova.localize("Starting extension") + "...");
     compositeDisposable.add(nova.workspace.onDidAddTextEditor(function (editor) { }));
-    compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)));
-    compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument));
     safeStart()().then(fold$1(function (err) {
         return lib.match(err)
             .with({ _tag: "makeExecutableError" }, function (_a) {
@@ -1186,7 +1225,11 @@ var activate = function () {
             return console.error(reason);
         })
             .exhaustive();
-    }, function (_) { return console.log(nova.localize("Activated") + " \uD83C\uDF89"); }));
+    }, function (_) {
+        compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)));
+        compositeDisposable.add(nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument(languageClient)));
+        console.log(nova.localize("Activated") + " \uD83C\uDF89");
+    }));
 };
 var deactivate = function () {
     console.log(nova.localize("Deactivating") + "...");

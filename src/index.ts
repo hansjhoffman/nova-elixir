@@ -53,12 +53,42 @@ interface ServerOptions {
 
 interface ClientSettings {
   readonly elixirLS: Readonly<{
-    dialyzerEnabled: boolean;
+    dialyzerEnabled?: boolean; // defaults to true
+    dialyzerFormat?: "dialyzer" | "dialyxir_short" | "dialyxir_long"; // default "dialyxir_long"
+    dialyzerWarnOpts?: Array<
+      | "error_handling"
+      | "no_behaviours"
+      | "no_contracts"
+      | "no_fail_call"
+      | "no_fun_app"
+      | "no_improper_lists"
+      | "no_match"
+      | "no_missing_calls"
+      | "no_opaque"
+      | "no_return"
+      | "no_undefined_callbacks"
+      | "no_unused"
+      | "underspecs"
+      | "unknown"
+      | "unmatched_returns"
+      | "overspecs"
+      | "specdiffs"
+    >; // defaults to []
+    enableTestLenses?: boolean; // defaults to false
+    fetchDeps?: boolean;
+    mixEnv?: "dev" | "test"; // defaults to "test"
+    mixTarget?: string;
+    projectDir?: string;
+    signatureAfterComplete?: boolean; // defaults to true
+    suggestSpecs?: boolean; // defaults to true
+    trace?: Readonly<{
+      server: "off" | "messages" | "verbose"; // defaults to "off"
+    }>;
   }>;
 }
 
 interface ClientOptions {
-  readonly initializationOptions: ClientSettings;
+  readonly initializationOptions?: ClientSettings;
   readonly syntaxes: Array<string>;
 }
 
@@ -106,7 +136,9 @@ const safeStart = () => {
           const clientOptions: ClientOptions = {
             initializationOptions: {
               elixirLS: {
-                dialyzerEnabled: false,
+                dialyzerEnabled: true,
+                fetchDeps: true,
+                mixEnv: "test",
               },
             },
             syntaxes: ["elixir"],
@@ -207,14 +239,6 @@ export const activate = (): void => {
 
   compositeDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
 
-  compositeDisposable.add(
-    nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences(languageClient)),
-  );
-
-  compositeDisposable.add(
-    nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
-  );
-
   safeStart()().then(
     E.fold(
       (err) => {
@@ -223,7 +247,23 @@ export const activate = (): void => {
           .with({ _tag: "startError" }, ({ reason }) => console.error(reason))
           .exhaustive();
       },
-      (_) => console.log(`${nova.localize("Activated")} 🎉`),
+      (_) => {
+        compositeDisposable.add(
+          nova.commands.register(
+            ExtensionConfigKeys.FindReferences,
+            findReferences(languageClient),
+          ),
+        );
+
+        compositeDisposable.add(
+          nova.commands.register(
+            ExtensionConfigKeys.FormatDocument,
+            formatDocument(languageClient),
+          ),
+        );
+
+        console.log(`${nova.localize("Activated")} 🎉`);
+      },
     ),
   );
 };
