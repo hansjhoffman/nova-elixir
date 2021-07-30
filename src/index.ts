@@ -151,7 +151,7 @@ const safeStart = () => {
             clientOptions,
           );
 
-          compositeDisposable.add(
+          extensionDisposable.add(
             client.onDidStop((err) => {
               let message = nova.localize("Elixir Language Server stopped unexpectedly");
               if (err) {
@@ -230,14 +230,12 @@ let configs: ExtensionSettings = {
   },
 };
 
-const compositeDisposable: CompositeDisposable = new CompositeDisposable();
+const extensionDisposable: CompositeDisposable = new CompositeDisposable();
 let languageClient: O.Option<LanguageClient> = O.none;
 
 export const activate = (): void => {
   console.log(`${nova.localize("Activating")}...`);
   showNotification(`${nova.localize("Starting extension")}...`);
-
-  compositeDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
 
   safeStart()().then(
     E.fold(
@@ -266,6 +264,7 @@ export const activate = (): void => {
       },
     ),
   );
+  extensionDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
 };
 
 export const deactivate = (): void => {
@@ -282,5 +281,5 @@ export const deactivate = (): void => {
     ),
   );
 
-  compositeDisposable.dispose();
+  extensionDisposable.dispose();
 };
