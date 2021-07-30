@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<completions>
+    <provider>
+        <selector>eex</selector>
+        <expression>\b[a-zA-Z0-9-_]*</expression>
+        
+        <set>eex.entities</set>
+    </provider>
+    
+    <!-- Entities -->
+    <set name="elixir.entities">
+        <completion string="&quot;" />
+        <completion string="&amp;" />
+        <completion string="&apos;" />
+        <completion string="&lt;" />
+        <completion string="&gt;" />
+    </set>
+    
+    <set name="eex.html.forms">
+        <!-- https://hexdocs.pm/phoenix_html/Phoenix.HTML.Form.html#functions -->
+    </set>
+</completions>

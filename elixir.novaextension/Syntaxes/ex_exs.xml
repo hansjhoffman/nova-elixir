@@ -9,6 +9,7 @@
     
     <detectors>
         <extension priority="1.0">ex,exs</extension>
+        <filename priority="1.0">mix.lock</filename>
     </detectors>
     
     <indentation>
@@ -103,15 +104,15 @@
         </collection>
         
         <!-- 
-            oooo                                                                        .o8           
-            `888                                                                       "888           
-             888  oooo   .ooooo.  oooo    ooo oooo oooo    ooo  .ooooo.  oooo d8b  .oooo888   .oooo.o 
-             888 .8P'   d88' `88b  `88.  .8'   `88. `88.  .8'  d88' `88b `888""8P d88' `888  d88(  "8 
-             888888.    888ooo888   `88..8'     `88..]88..8'   888   888  888     888   888  `"Y88b.  
-             888 `88b.  888    .o    `888'       `888'`888'    888   888  888     888   888  o.  )88b 
-            o888o o888o `Y8bod8P'     .8'         `8'  `8'     `Y8bod8P' d888b    `Y8bod88P" 8""888P' 
-                                  .o..P'                                                              
-                                  `Y8P'                                                               
+        oooo                                                                        .o8           
+        `888                                                                       "888           
+         888  oooo   .ooooo.  oooo    ooo oooo oooo    ooo  .ooooo.  oooo d8b  .oooo888   .oooo.o 
+         888 .8P'   d88' `88b  `88.  .8'   `88. `88.  .8'  d88' `88b `888""8P d88' `888  d88(  "8 
+         888888.    888ooo888   `88..8'     `88..]88..8'   888   888  888     888   888  `"Y88b.  
+         888 `88b.  888    .o    `888'       `888'`888'    888   888  888     888   888  o.  )88b 
+        o888o o888o `Y8bod8P'     .8'         `8'  `8'     `Y8bod8P' d888b    `Y8bod88P" 8""888P' 
+                              .o..P'                                                              
+                              `Y8P'                                                               
         -->
         <collection name="keywords">
             <scope name="elixir.keyword">
@@ -244,13 +245,13 @@
         </collection>
         
         <!-- 
-             o8o        .o8                            .    o8o   .o88o.  o8o                              
-             `"'       "888                          .o8    `"'   888 `"  `"'                              
-            oooo   .oooo888   .ooooo.  ooo. .oo.   .o888oo oooo  o888oo  oooo   .ooooo.  oooo d8b  .oooo.o 
-            `888  d88' `888  d88' `88b `888P"Y88b    888   `888   888    `888  d88' `88b `888""8P d88(  "8 
-             888  888   888  888ooo888  888   888    888    888   888     888  888ooo888  888     `"Y88b.  
-             888  888   888  888    .o  888   888    888 .  888   888     888  888    .o  888     o.  )88b 
-            o888o `Y8bod88P" `Y8bod8P' o888o o888o   "888" o888o o888o   o888o `Y8bod8P' d888b    8""888P' 
+         o8o        .o8                            .    o8o   .o88o.  o8o                              
+         `"'       "888                          .o8    `"'   888 `"  `"'                              
+        oooo   .oooo888   .ooooo.  ooo. .oo.   .o888oo oooo  o888oo  oooo   .ooooo.  oooo d8b  .oooo.o 
+        `888  d88' `888  d88' `88b `888P"Y88b    888   `888   888    `888  d88' `88b `888""8P d88(  "8 
+         888  888   888  888ooo888  888   888    888    888   888     888  888ooo888  888     `"Y88b.  
+         888  888   888  888    .o  888   888    888 .  888   888     888  888    .o  888     o.  )88b 
+        o888o `Y8bod88P" `Y8bod8P' o888o o888o   "888" o888o o888o   o888o `Y8bod8P' d888b    8""888P' 
         -->
         <collection name="identifiers">
             <scope name="elixir.identifier.variable.instance">
@@ -280,8 +281,13 @@
                 <expression>\b(?&lt;!\.)([a-zA-Z_][a-zA-Z0-9_]*)(?=\()\b</expression>
                 needs to be updated to not be preceeded by ~ for sigils
             </scope> -->
-            <scope name="elixir.identifier.constant.atom">
-                <expression>(:\w+)\b</expression>
+            
+            <!-- https://hexdocs.pm/elixir/1.12/syntax-reference.html#atoms -->
+            <scope name="eex.identifier.constant.atom.quoted">
+                <expression>:["'].+["']\b</expression>
+            </scope>
+            <scope name="eex.identifier.constant.atom.unquoted">
+                <expression>:[A-Za-z][A-Za-z0-9_@]+[!?]?\b</expression>
             </scope>
         </collection>
         
