@@ -10,15 +10,11 @@
   "bugs": {
     "url": "https://github.com/hansjhoffman/nova-elixir/issues"
   },
-
-  "main": "main.dist.js",
-
+  "main": "main.cjs.min.js",
   "activationEvents": ["onWorkspaceContains:mix.exs", "onLanguage:elixir"],
-
   "entitlements": {
     "process": true
   },
-
   "sidebars": [
     {
       "id": "hansjhoffman.elixir.sidebar",
@@ -33,7 +29,6 @@
       ]
     }
   ],
-
   "commands": {
     "editor": [
       {
