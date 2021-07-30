@@ -193,7 +193,7 @@
                  `Y8P'
         -->
         <collection name="syntax">
-            <scope name="elixir.operator">
+            <scope name="eex.operator">
                 <expression>\b(\|\|)\b</expression>
             </scope>
         </collection>

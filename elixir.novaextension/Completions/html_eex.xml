@@ -5,55 +5,63 @@
         <selector>*:not(string,comment)</selector>
         <expression>\b[a-zA-Z0-9-_]*</expression>
         
+        <set>eex.expressions</set>
         <set>eex.html.forms</set>
     </provider>
     
-    <!-- <completion string="&lt;%">
-        <behavior>
-            <append> %&gt;</append>
+    <set name="eex.expressions" symbol="expression">
+        <!-- not working. leaving here as reminder -->
+        <!-- <behavior>
+            <arguments prefix="&lt;%" suffix="%&gt;" separator=" " />
         </behavior>
-    </completion> -->
+        <behavior>
+            <append-dynamic>
+                <matched-suffix>(&lt;%)</matched-suffix>
+                <transform-into>(?1::$1\s%&gt;)</transform-into>
+            </append-dynamic>
+        </behavior> -->
+    </set>
     
     <!-- https://hexdocs.pm/phoenix_html/Phoenix.HTML.Form.html#functions -->
     <set name="eex.html.forms" symbol="function">
         <completion string="checkbox">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="color_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="date_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="date_select">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="datetime_local_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="datetime_select">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="email_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="file_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="form_for">
@@ -63,7 +71,7 @@
         </completion>
         <completion string="hidden_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="hidden_inputs_for">
@@ -73,37 +81,37 @@
         </completion>
         <completion string="humanize">
             <behavior suffix="(">
-                <append>($[atom])</append>
+                <append>($[:atom])</append>
             </behavior>
         </completion>
         <completion string="input_id">
             <behavior suffix="(">
-                <append>($[name], $[field])</append>
+                <append>($[name], $[:field])</append>
             </behavior>
         </completion>
         <completion string="input_name">
             <behavior suffix="(">
-                <append>($[form_or_name], $[field])</append>
+                <append>($[form_or_name], $[:field])</append>
             </behavior>
         </completion>
         <completion string="input_type">
             <behavior suffix="(">
-                <append>($[form], $[field], $[mapping])</append>
+                <append>($[form], $[:field], $[mapping])</append>
             </behavior>
         </completion>
         <completion string="input_validations">
             <behavior suffix="(">
-                <append>($[form], $[field])</append>
+                <append>($[form], $[:field])</append>
             </behavior>
         </completion>
         <completion string="input_value">
             <behavior suffix="(">
-                <append>($[form], $[field])</append>
+                <append>($[form], $[:field])</append>
             </behavior>
         </completion>
         <completion string="inputs_for">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="label">
@@ -113,12 +121,12 @@
         </completion>
         <completion string="multiple_select">
             <behavior suffix="(">
-                <append>($[form], $[field], $[options], $[opts])</append>
+                <append>($[form], $[:field], $[options], $[opts])</append>
             </behavior>
         </completion>
         <completion string="number_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="options_for_select">
@@ -128,17 +136,17 @@
         </completion>
         <completion string="password_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="radio_button">
             <behavior suffix="(">
-                <append>($[form], $[field], $[value], $[opts])</append>
+                <append>($[form], $[:field], $[value], $[opts])</append>
             </behavior>
         </completion>
         <completion string="range_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="reset">
@@ -148,12 +156,12 @@
         </completion>
         <completion string="search_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="select">
             <behavior suffix="(">
-                <append>($[form], $[field], $[options], $[opts])</append>
+                <append>($[form], $[:field], $[options], $[opts])</append>
             </behavior>
         </completion>
         <completion string="submit">
@@ -163,32 +171,32 @@
         </completion>
         <completion string="telephone_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="text_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="textarea">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="time_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="time_select">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
         <completion string="url_input">
             <behavior suffix="(">
-                <append>($[form], $[field], $[opts])</append>
+                <append>($[form], $[:field], $[opts])</append>
             </behavior>
         </completion>
     </set>
