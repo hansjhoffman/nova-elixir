@@ -116,15 +116,15 @@
         </collection>
         
         <!--
-             .             o8o                                  
-           .o8             `"'                                  
+                     .             o8o                                  
+                   .o8             `"'                                  
         .oooo.o .o888oo oooo d8b oooo  ooo. .oo.    .oooooooo  .oooo.o 
         d88(  "8   888   `888""8P `888  `888P"Y88b  888' `88b  d88(  "8 
         `"Y88b.    888    888      888   888   888  888   888  `"Y88b.  
         o.  )88b   888 .  888      888   888   888  `88bod8P'  o.  )88b 
         8""888P'   "888" d888b    o888o o888o o888o `8oooooo.  8""888P' 
-                                            d"     YD           
-                                            "Y88888P'  
+                                                    d"     YD           
+                                                    "Y88888P'  
         -->
         <collection name="strings">
             <scope name="elixir.string.multiline" spell-check="true">
@@ -176,7 +176,7 @@
                 <expression>@[a-z]\w*</expression>
             </scope>
             <scope name="eex.function">
-                <expression>([a-z]\w*)\(</expression>
+                <expression>([a-z]\w*[!?]?)\(</expression>
                 <capture number="1" name="eex.identifier.function.name" />
             </scope>
         </collection>
