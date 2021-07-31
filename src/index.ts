@@ -237,34 +237,36 @@ export const activate = (): void => {
   console.log(`${nova.localize("Activating")}...`);
   showNotification(`${nova.localize("Starting extension")}...`);
 
-  safeStart()().then(
-    E.fold(
-      (err) => {
-        return match(err)
-          .with({ _tag: "makeExecutableError" }, ({ reason }) => console.error(reason))
-          .with({ _tag: "startError" }, ({ reason }) => console.error(reason))
-          .exhaustive();
-      },
-      (_) => {
-        compositeDisposable.add(
-          nova.commands.register(
-            ExtensionConfigKeys.FindReferences,
-            findReferences(languageClient),
-          ),
-        );
-
-        compositeDisposable.add(
-          nova.commands.register(
-            ExtensionConfigKeys.FormatDocument,
-            formatDocument(languageClient),
-          ),
-        );
-
-        console.log(`${nova.localize("Activated")} 🎉`);
-      },
-    ),
-  );
   extensionDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
+
+  //   safeStart()().then(
+  //     E.fold(
+  //       (err) => {
+  //         return match(err)
+  //           .with({ _tag: "makeExecutableError" }, ({ reason }) => console.error(reason))
+  //           .with({ _tag: "startError" }, ({ reason }) => console.error(reason))
+  //           .exhaustive();
+  //       },
+  //       (_) => {
+  //         extensionDisposable.add(
+  //           nova.commands.register(
+  //             ExtensionConfigKeys.FindReferences,
+  //             findReferences(languageClient),
+  //           ),
+  //         );
+  //
+  //         extensionDisposable.add(
+  //           nova.commands.register(
+  //             ExtensionConfigKeys.FormatDocument,
+  //             formatDocument(languageClient),
+  //           ),
+  //         );
+  //
+  //         console.log(`${nova.localize("Activated")} 🎉`);
+  //       },
+  //     ),
+  //   );
+  console.log(`${nova.localize("Activated")} 🎉`);
 };
 
 export const deactivate = (): void => {
