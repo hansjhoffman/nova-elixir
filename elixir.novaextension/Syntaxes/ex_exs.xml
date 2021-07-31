@@ -78,21 +78,8 @@
         `Y8bod88P" `Y8bod8P' o888o   o888o o888o o888o o888o   "888" o888o `Y8bod8P' o888o o888o 8""888P' 
         -->
         <collection name="definitions">
-            <scope name="elixir.definition.class.simple">
-                <symbol type="class">
-                    <context behavior="start" group="class" />
-                </symbol>
-                <expression>(defmodule)\s([A-Z][a-zA-Z0-9_\.]*)\s(do)$</expression>
-                <capture number="1" name="elixir.keyword" />
-                <capture number="2" name="elixir.identifier.class.type.name" />
-                <capture number="3" name="elixir.keyword" />
-                <subscopes>
-                    <include syntax="self" collection="comments" />
-                    <include syntax="self" collection="definitions" />
-                </subscopes>
-            </scope>
         </collection>
-        
+
         <!-- 
         oooo                                                                        .o8           
         `888                                                                       "888           
@@ -244,8 +231,10 @@
         o888o `Y8bod88P" `Y8bod8P' o888o o888o   "888" o888o o888o   o888o `Y8bod8P' d888b    8""888P' 
         -->
         <collection name="identifiers">
-            <scope name="elixir.identifier.variable.instance">
-                <expression>@[a-z][A-Za-z0-9_]*</expression>
+            <!-- https://hexdocs.pm/elixir/master/Module.html#module-module-attributes -->
+            <scope name="elixir.module.attributes">
+                <expression>(@[a-z]\w*)</expression>
+                <capture number="1" name="elixir.identifier.variable.instance" />
             </scope>
             <scope name="elixir.function.typespec">
                 <starts-with>
