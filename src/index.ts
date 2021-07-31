@@ -2,7 +2,9 @@ import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
 import { constVoid, pipe } from "fp-ts/function";
+import * as Str from "fp-ts/string";
 import * as D from "io-ts/Decoder";
+import { Lens } from "monocle-ts";
 import { match } from "ts-pattern";
 
 import { findReferences } from "./commands/findReferences";
@@ -16,6 +18,7 @@ enum ExtensionConfigKeys {
   FindReferences = "hansjhoffman.elixir.commands.findReferences",
   FormatOnSave = "hansjhoffman.elixir.config.formatOnSave",
   FormatDocument = "hansjhoffman.elixir.commands.formatDocument",
+  Restart = "hansjhoffman.elixir.commands.restart",
   Sidebar = "hansjhoffman.elixir.sidebar",
   SidebarResults = "hansjhoffman.elixir.sidebar.results",
 }
@@ -105,6 +108,44 @@ const showNotification = (body: string): void => {
   }
 };
 
+/*
+ * Main
+ */
+
+const extensionDisposable: CompositeDisposable = new CompositeDisposable();
+let languageClient: O.Option<LanguageClient> = O.none;
+
+let configs: ExtensionSettings = {
+  workspace: {
+    formatOnSave: pipe(
+      O.fromNullable(nova.workspace.config.get(ExtensionConfigKeys.FormatOnSave)),
+      O.chain((value) => O.fromEither(D.boolean.decode(value))),
+      O.getOrElseW(() => false),
+    ),
+  },
+  global: {
+    formatOnSave: pipe(
+      O.fromNullable(nova.config.get(ExtensionConfigKeys.FormatOnSave)),
+      O.chain((value) => O.fromEither(D.boolean.decode(value))),
+      O.getOrElseW(() => false),
+    ),
+  },
+};
+
+const workspaceConfigsLens = Lens.fromPath<ExtensionSettings>()(["workspace"]);
+const globalConfigsLens = Lens.fromPath<ExtensionSettings>()(["global"]);
+
+/**
+ * Gets a value giving precedence to workspace over global extension values.
+ * @param {ExtensionSettings} configs - extension settings
+ */
+const selectFormatOnSave = (configs: ExtensionSettings): boolean => {
+  const workspace = workspaceConfigsLens.get(configs);
+  const global = globalConfigsLens.get(configs);
+
+  return workspace.formatOnSave || global.formatOnSave;
+};
+
 const safeStart = () => {
   return TE.sequenceSeqArray<void, MakeExecutableError | StartError>([
     TE.tryCatch<MakeExecutableError, void>(
@@ -168,7 +209,7 @@ const safeStart = () => {
                 { buttons: [nova.localize("Restart"), nova.localize("Ignore")] },
                 (idx) => {
                   if (idx == 0) {
-                    // nova.commands.invoke("x.x.reload");
+                    nova.commands.invoke(ExtensionConfigKeys.Restart);
                   }
                 },
               );
@@ -209,35 +250,28 @@ const safeShutdown = (): TE.TaskEither<ShutdownError, void> => {
   );
 };
 
-/*
- * Main
- */
+const handleAddTextEditor = (editor: TextEditor): void => {
+  pipe(
+    O.fromNullable(editor.document.syntax),
+    O.chain(O.fromPredicate((syntax) => Str.Eq.equals(syntax, "elixir"))),
+    O.fold(constVoid, (_) => {
+      const editorDisposable = new CompositeDisposable();
+      extensionDisposable.add(editor.onDidDestroy(() => editorDisposable.dispose()));
 
-let configs: ExtensionSettings = {
-  workspace: {
-    formatOnSave: pipe(
-      O.fromNullable(nova.workspace.config.get(ExtensionConfigKeys.FormatOnSave)),
-      O.chain((value) => O.fromEither(D.boolean.decode(value))),
-      O.getOrElseW(() => false),
-    ),
-  },
-  global: {
-    formatOnSave: pipe(
-      O.fromNullable(nova.config.get(ExtensionConfigKeys.FormatOnSave)),
-      O.chain((value) => O.fromEither(D.boolean.decode(value))),
-      O.getOrElseW(() => false),
-    ),
-  },
+      const shouldFormatOnSave = selectFormatOnSave(configs);
+
+      if (shouldFormatOnSave) {
+        editorDisposable.add(editor.onWillSave(formatDocument(languageClient)));
+      }
+    }),
+  );
 };
-
-const extensionDisposable: CompositeDisposable = new CompositeDisposable();
-let languageClient: O.Option<LanguageClient> = O.none;
 
 export const activate = (): void => {
   console.log(`${nova.localize("Activating")}...`);
   showNotification(`${nova.localize("Starting extension")}...`);
 
-  extensionDisposable.add(nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {}));
+  extensionDisposable.add(nova.workspace.onDidAddTextEditor(handleAddTextEditor));
 
   //   safeStart()().then(
   //     E.fold(

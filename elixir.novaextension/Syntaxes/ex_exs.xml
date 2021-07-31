@@ -92,13 +92,8 @@
                               `Y8P'                                                               
         -->
         <collection name="keywords">
-            <scope name="elixir.keyword">
+            <scope name="elixir.keyword.construct">
                 <strings>
-                    <string>after</string>
-                    <string>assert</string>
-                    <string>case</string>
-                    <string>cond</string>
-                    <string>catch</string>
                     <string>def</string>
                     <string>defdelegate</string>
                     <string>defguard</string>
@@ -111,17 +106,49 @@
                     <string>defstruct</string>
                     <string>describe</string>
                     <string>do</string>
-                    <string>else</string>
                     <string>end</string>
                     <string>fn</string>
-                    <string>if</string>
                     <string>quote</string>
+                    <string>test</string>
+                    <string>unquote</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.condition">
+                <strings>
+                    <string>case</string>
+                    <string>cond</string>
+                    <string>else</string>
+                    <string>if</string>
+                    <string>when</string>
+                    <string>unless</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.statement">
+                <strings>
+                    <string>assert</string>
+                    <string>catch</string>
+                    <string>exit</string>
+                    <string>for</string>
+                    <string>raise</string>
                     <string>receive</string>
                     <string>rescue</string>
-                    <string>test</string>
+                    <string>throw</string>
                     <string>try</string>
-                    <string>unquote</string>
                     <string>with</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.operator">
+                <strings>
+                    <string>after</string>
+                    <string>and</string>
+                    <string>in</string>
+                    <string>not</string>
+                    <string>or</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.self">
+                <strings>
+                    <string>super</string>
                 </strings>
             </scope>
         </collection>
@@ -147,10 +174,13 @@
                     <string>nil</string>
                 </strings>
             </scope>
+            <scope name="elixir.value.number.binary">
+                <expression>\b0b[01]+\b</expression>
+            </scope>
             <scope name="elixir.value.number.hex">
                 <expression>\b0x[a-fA-F0-9]+\b</expression>
             </scope>
-            <scope name="elixir.value.number.oct">
+            <scope name="elixir.value.number.octal">
                 <expression>\b0o[0-7]+\b</expression>
             </scope>
             <scope name="elixir.value.number">
@@ -358,13 +388,13 @@
             
             <!-- Operators https://hexdocs.pm/elixir/1.12/operators.html#general-operators -->
             <scope name="elixir.operator">
-                <expression>\s\=\s</expression>
+                <expression>\=\=\=</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\=\=</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\=\=\=</expression>
+                <expression>\s\=\s</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\=~</expression>
@@ -397,10 +427,10 @@
                 <expression>\-</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\*</expression>
+                <expression>\*\*</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\*\*</expression>
+                <expression>\*</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\/</expression>
@@ -409,31 +439,37 @@
                 <expression>\b%\b</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>&lt;</expression>
-            </scope>
-            <scope name="elixir.operator">
                 <expression>&lt;&lt;&lt;</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>&gt;</expression>
+                <expression>&lt;&lt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&lt;</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>&gt;&gt;&gt;</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>(and | &amp;&amp; | &amp;&amp;&amp;)</expression>
+                <expression>&gt;&gt;</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\b(or | \|\| | \|\|\|)\b</expression>
+                <expression>&gt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&amp;&amp;&amp;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&amp;&amp;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b(\|\|\|)\b</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b(\|\|)\b</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\!</expression>
-            </scope>
-            <scope name="elixir.operator">
-                <expression>\b(not)\b</expression>
-            </scope>
-            <scope name="elixir.operator">
-                <expression>\b(in | not in)\b</expression>
             </scope>
             <scope name="elixir.operator.pin">
                 <expression>\^</expression>
