@@ -31,7 +31,6 @@
         <pair open="{" close="}" />
         <pair open="[" close="]" />
         <pair open="(" close=")" />
-        <pair open="&lt;&lt;" close="&gt;&gt;" />
     </brackets>
     
     <surrounding-pairs>
@@ -79,26 +78,57 @@
         `Y8bod88P" `Y8bod8P' o888o   o888o o888o o888o o888o   "888" o888o `Y8bod8P' o888o o888o 8""888P' 
         -->
         <collection name="definitions">
-            <scope name="elixir.import">
+            <scope name="elixir.definition.function">
+                <!-- <symbol type="function">
+                    <context behavior="start" group="function" />
+                </symbol> -->
                 <starts-with>
-                    <expression>\b(alias|import|require|use)\b</expression>
-                    <capture number="0" name="elixir.keyword" />
+                    <expression>(def|defp)\s+([a-zA-Z_][a-zA-Z0-9_\!\?]*)</expression>
+                    <capture number="1" name="elixir.keyword" />
+                    <capture number="2" name="elixir.identifier.function.name" />
                 </starts-with>
                 <ends-with>
-                    <expression>$</expression>
+                    <expression>(do)$</expression>
+                    <capture number="1" name="elixir.keyword" />
                 </ends-with>
                 <subscopes>
-                    <scope name="elixir.keyword">
-                        <expression>as:</expression>
+                    <scope name="elixir.arguments">
+                        <starts-with>
+                            <expression>\(</expression>
+                            <capture number="0" name="elixir.bracket" />
+                        </starts-with>
+                        <ends-with>
+                            <expression>\)|$</expression>
+                            <capture number="0" name="elixir.bracket" />
+                        </ends-with>
+                        <subscopes>
+                            <scope name="elixir.separator">
+                                <expression>,</expression>
+                            </scope>
+                            <scope name="elixir.identifier.argument.name">
+                                <symbol type="argument" />
+                                <expression>(?&lt;!\=)\b[a-zA-Z_][A-Za-z0-9_]*\b</expression>
+                            </scope>
+                            <include syntax="self" collection="values" />
+                            <include syntax="self" collection="syntax" />
+                        </subscopes>
                     </scope>
-                    <scope name="elixir.import.identifier.symbol">
-                        <symbol type="package" scope="external" />
-                        <expression>([a-zA-Z][a-zA-Z0-9\-_\.]+)</expression>
-                    </scope>
-                    <scope name="elixir.separator">
-                        <expression>,</expression>
-                    </scope>
-                    <!-- <include syntax="self" collection="values" /> -->
+                </subscopes>
+            </scope>
+            <scope name="elixir.definition.class.simple">
+                <symbol type="class">
+                    <context behavior="start" group="class" />
+                </symbol>
+                <expression>(defmodule)\s([A-Z][a-zA-Z0-9_\.]*)\s(do)$</expression>
+                <capture number="1" name="elixir.keyword" />
+                <capture number="2" name="elixir.identifier.class.type.name" />
+                <capture number="3" name="elixir.keyword" />
+                <subscopes>
+                    <include syntax="self" collection="comments" />
+                    <include syntax="self" collection="definitions" />
+                </subscopes>
+            </scope>
+            
                 </subscopes>
             </scope>
         </collection>
@@ -259,7 +289,7 @@
             </scope>
             <scope name="elixir.function.typespec">
                 <starts-with>
-                    <expression>(@spec|@type)</expression>
+                    <expression>(@spec|@type|@typep)</expression>
                     <capture number="0" name="elixir.identifier.typespec" />
                 </starts-with>
                 <ends-with>
@@ -270,24 +300,38 @@
                         <expression>::</expression>
                     </scope>
                     <scope name="elixir.operator">
-                        <expression>\-></expression>
+                        <expression>\-&gt;</expression>
                     </scope>
                 </subscopes>
             </scope>
-            <!-- <scope name="elixir.identifier.module.submodule">
+
+            <scope name="elixir.identifier.module.submodule">
                 <expression>\b(?&lt;=\.)([a-zA-Z_][a-zA-Z0-9_]*)(?!\()\b</expression>
-            </scope> -->
-            <!-- <scope name="elixir.identifier.function">
-                <expression>\b(?&lt;!\.)([a-zA-Z_][a-zA-Z0-9_]*)(?=\()\b</expression>
-                needs to be updated to not be preceeded by ~ for sigils
-            </scope> -->
+            </scope>
             
             <!-- https://hexdocs.pm/elixir/1.12/syntax-reference.html#atoms -->
-            <scope name="eex.identifier.constant.atom.quoted">
+            <scope name="elixir.identifier.constant.atom.quoted">
                 <expression>:["'].+["']\b</expression>
             </scope>
-            <scope name="eex.identifier.constant.atom.unquoted">
-                <expression>:[A-Za-z][A-Za-z0-9_@]+[!?]?\b</expression>
+            <scope name="elixir.identifier.constant.atom.unquoted">
+                <expression>
+                    (?x:                # turn on extended mode, allows arbitrary whitespace
+                       :[A-Za-z]        # must start with ':' and alpha
+                       [A-Za-z0-9_@]+   # one or more alphanumeric to include '_' or '@'
+                       [!?]?            # can end with '!' or '?'
+                    )
+                </expression>
+            </scope>
+            <scope name="elixir.identifier.function">
+                <expression>
+                    (?x:                # turn on extended mode, allows arbitrary whitespace
+                        \b              # bounded
+                        (?&lt;!\.)      # negative lookbehind to ensure no '.' found
+                        ([a-z]\w*[!?]?) # must start with lower case and can end with '!' or '?'
+                        (?=\()          # positive lookahead for '('
+                    )
+                </expression>
+                <capture number="1" name="elixir.identifier.function.name" />
             </scope>
         </collection>
         
@@ -317,30 +361,29 @@
             <scope name="elixir.string.double-quoted">
                 <starts-with>
                     <expression>&quot;</expression>
-                    <capture number="0" name="elixir.string.double-quoted.delimiter" />
+                    <capture number="0" name="elixir.string.quoted.double" />
                 </starts-with>
                 <ends-with>
-                    <expression>(?:[^&quot;\\]|\\.)*(&quot;|$)</expression>
-                    <capture number="1" name="elixir.string.double-quoted.delimiter" />
+                    <expression>&quot;|(?:(?&lt;!\\)$)</expression>
+                    <capture number="0" name="elixir.string.quoted.double" />
                 </ends-with>
                 <subscopes>
-                    <include syntax="self" collection="string-interpolation" />
+                    <include syntax="self" collection="interpolations" />
                 </subscopes>
             </scope>
         </collection>
-        <collection name="string-interpolation">
-            <scope name="elixir.string.interpolation">
-                <!-- <expression>\#\{.*?\}</expression> -->
+        <collection name="interpolations">
+            <scope>
                 <starts-with>
                     <expression>(\#\{)</expression>
-                    <capture number="0" name="elixir.string-interpolation" />
+                    <capture number="0" name="elixir.string-template" />
                 </starts-with>
                 <ends-with>
                     <expression>(\})</expression>
-                    <capture number="0" name="elixir.string-interpolation" />
+                    <capture number="0" name="elixir.string-template" />
                 </ends-with>
                 <subscopes>
-                    <!-- <include syntax="self" collection="values" /> -->
+                    <include syntax="self" collection="values" />
                 </subscopes>
             </scope>
         </collection>
@@ -358,14 +401,14 @@
         -->
         <collection name="syntax">
             <!-- Brackets -->
-            <scope name="elixir.bracket">
-                <expression>(\{ | \})</expression>
+            <scope name="elixir.bracket.curly">
+                <expression>(\{|\})</expression>
             </scope>
-            <scope name="elixir.bracket">
-                <expression>(\[ | \])</expression>
+            <scope name="elixir.bracket.square">
+                <expression>(\[|\])</expression>
             </scope>
-            <scope name="elixir.bracket">
-                <expression>(\( | \))</expression>
+            <scope name="elixir.bracket.parens">
+                <expression>(\(|\))</expression>
             </scope>
             
             <!-- Operators https://hexdocs.pm/elixir/1.12/operators.html#general-operators -->

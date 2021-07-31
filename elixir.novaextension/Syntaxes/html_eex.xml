@@ -4,6 +4,7 @@
         <name>HTML (EEx)</name>
         <type>markup</type>
         <preferred-file-extension>html.eex</preferred-file-extension>
+        <parent>html</parent>
     </meta>
     
     <detectors>
