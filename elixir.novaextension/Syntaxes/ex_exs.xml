@@ -236,6 +236,19 @@
                 </expression> -->
                 <expression />
             </scope>
+            <!-- https://hexdocs.pm/elixir/1.12/syntax-reference.html#atoms -->
+            <scope name="elixir.value.symbol.atom.quoted">
+                <expression>:[&quot;&apos;].+[&quot;&apos;]</expression>
+            </scope>
+            <scope name="elixir.value.symbol.atom.unquoted">
+                <expression>
+                    (?x:                # turn on extended mode, allows arbitrary whitespace
+                       :[A-Za-z]        # must start with ':' and alpha
+                       [A-Za-z0-9_@]*   # zero or more alphanumeric to include '_' or '@'
+                       [!?]?            # can end with '!' or '?'
+                    )
+                </expression>
+            </scope>
             <scope name="elixir.value.list">
                 <symbol type="expression">
                     <context behavior="subtree" />
@@ -332,17 +345,12 @@
                     </scope>
                 </subscopes>
             </scope>
-            
-            <!-- https://hexdocs.pm/elixir/1.12/syntax-reference.html#atoms -->
-            <scope name="elixir.identifier.constant.atom.quoted">
-                <expression>:["'].+["']\b</expression>
-            </scope>
-            <scope name="elixir.identifier.constant.atom.unquoted">
+            <scope name="elixir.identifier.constant.keyword-list-key">
                 <expression>
                     (?x:                # turn on extended mode, allows arbitrary whitespace
-                       :[A-Za-z]        # must start with ':' and alpha
+                       [A-Za-z]         # must start with alpha
                        [A-Za-z0-9_@]*   # zero or more alphanumeric to include '_' or '@'
-                       [!?]?            # can end with '!' or '?'
+                       [!?]?:           # possible '!' or '?' and end with ':'
                     )
                 </expression>
             </scope>
