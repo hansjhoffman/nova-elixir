@@ -14,15 +14,15 @@
     "node": ">=12.17.0"
   },
   "scripts": {
-    "build": "rollup --config rollup.config.ts --configPlugin typescript",
-    "compile": "tsc",
-    "format": "yarn run format:ts",
-    "format:ts": "prettier --write 'src/**/*.ts'",
-    "format:xml": "prettier --write 'elixir.novaextension/**/*.xml'",
-    "lint": "eslint 'src/**/*.ts'",
-    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "build": "make build",
+    "compile": "make compile",
+    "format": "make format",
+    "format:ts": "make format-ts",
+    "format:xml": "make format-xml",
+    "lint": "make lint",
+    "lint:fix": "make lint-fix",
     "prepare": "is-ci || husky install",
-    "watch": "watch 'yarn run build' src"
+    "watch": "make watch"
   },
   "dependencies": {
     "fp-ts": "^2.11.1",
