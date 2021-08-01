@@ -2,8 +2,13 @@ import * as E from "fp-ts/Either";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither";
 import { constVoid, pipe } from "fp-ts/function";
+import * as Str from "fp-ts/string";
 import * as D from "io-ts/Decoder";
+import { Lens } from "monocle-ts";
 import { match } from "ts-pattern";
+
+import { findReferences } from "./commands/findReferences";
+import { formatDocument } from "./commands/formatDocument";
 
 /*
  * Types
@@ -13,6 +18,9 @@ enum ExtensionConfigKeys {
   FindReferences = "hansjhoffman.elixir.commands.findReferences",
   FormatOnSave = "hansjhoffman.elixir.config.formatOnSave",
   FormatDocument = "hansjhoffman.elixir.commands.formatDocument",
+  Restart = "hansjhoffman.elixir.commands.restart",
+  Sidebar = "hansjhoffman.elixir.sidebar",
+  SidebarResults = "hansjhoffman.elixir.sidebar.results",
 }
 
 interface ExtensionSettings {
@@ -39,26 +47,52 @@ interface ShutdownError {
   readonly reason: string;
 }
 
-interface InvokeFormatterError {
-  readonly _tag: "invokeFormatterError";
-  readonly reason: string;
-}
-
-interface InvokeReferencesError {
-  readonly _tag: "invokeReferencesError";
-  readonly reason: string;
-}
-
 interface ServerOptions {
-  type: "stdio" | "socket" | "pipe";
-  path: string;
-  args?: Array<string>;
-  env?: Record<string, string>;
+  readonly type: "stdio" | "socket" | "pipe";
+  readonly path: string;
+  readonly args?: Array<string>;
+  readonly env?: Record<string, string>;
+}
+
+interface ClientSettings {
+  readonly elixirLS: Readonly<{
+    dialyzerEnabled?: boolean; // defaults to true
+    dialyzerFormat?: "dialyzer" | "dialyxir_short" | "dialyxir_long"; // default "dialyxir_long"
+    dialyzerWarnOpts?: Array<
+      | "error_handling"
+      | "no_behaviours"
+      | "no_contracts"
+      | "no_fail_call"
+      | "no_fun_app"
+      | "no_improper_lists"
+      | "no_match"
+      | "no_missing_calls"
+      | "no_opaque"
+      | "no_return"
+      | "no_undefined_callbacks"
+      | "no_unused"
+      | "underspecs"
+      | "unknown"
+      | "unmatched_returns"
+      | "overspecs"
+      | "specdiffs"
+    >; // defaults to []
+    enableTestLenses?: boolean; // defaults to false
+    fetchDeps?: boolean;
+    mixEnv?: "dev" | "test"; // defaults to "test"
+    mixTarget?: string;
+    projectDir?: string;
+    signatureAfterComplete?: boolean; // defaults to true
+    suggestSpecs?: boolean; // defaults to true
+    trace?: Readonly<{
+      server: "off" | "messages" | "verbose"; // defaults to "off"
+    }>;
+  }>;
 }
 
 interface ClientOptions {
-  initializationOptions?: any;
-  syntaxes: Array<string>;
+  readonly initializationOptions?: ClientSettings;
+  readonly syntaxes: Array<string>;
 }
 
 /*
@@ -74,157 +108,12 @@ const showNotification = (body: string): void => {
   }
 };
 
-const safeFindReferences = (): TE.TaskEither<InvokeReferencesError, void> => {
-  return TE.tryCatch<InvokeReferencesError, void>(
-    () => {
-      return new Promise<void>((resolve, _reject) => {
-        resolve();
-      });
-    },
-    () => ({
-      _tag: "invokeReferencesError",
-      reason: `${nova.localize("Failed to find references")}.`,
-    }),
-  );
-};
-
-const findReferences = (): void => {};
-
-const safeFormat = (
-  editor: TextEditor,
-  formatterPath: string,
-): TE.TaskEither<InvokeFormatterError, void> => {
-  return TE.tryCatch<InvokeFormatterError, void>(
-    () => {
-      return new Promise<void>((resolve, _reject) => {
-        resolve();
-      });
-    },
-    () => ({
-      _tag: "invokeFormatterError",
-      reason: `${nova.localize("Failed to format the document")}.`,
-    }),
-  );
-};
-
-const formatDocument = (editor: TextEditor): void => {
-  pipe(
-    O.some("path-to-formatter"),
-    O.fold(
-      () => console.log(`${nova.localize("Skipping")}... ${nova.localize("No formatter set")}.`),
-      (path) => {
-        safeFormat(editor, path)().then(
-          E.fold(
-            (err) => {
-              return match(err)
-                .with({ _tag: "invokeFormatterError" }, ({ reason }) => console.error(reason))
-                .exhaustive();
-            },
-            () => console.log(`${nova.localize("Formatted")} ${editor.document.path}`),
-          ),
-        );
-      },
-    ),
-  );
-};
-
-const safeStart = () => {
-  return TE.sequenceSeqArray<void, MakeExecutableError | StartError>([
-    TE.tryCatch<MakeExecutableError, void>(
-      () => {
-        return new Promise<void>((resolve, reject) => {
-          const process = new Process("/usr/bin/env", {
-            args: ["chmod", "755", nova.path.join(nova.extension.path, "elixir-ls", "*.sh")],
-          });
-
-          process.onDidExit((status) => (status === 0 ? resolve() : reject()));
-
-          process.start();
-        });
-      },
-      () => ({
-        _tag: "makeExecutableError",
-        reason: `${nova.localize("Failed to make file executable")}.`,
-      }),
-    ),
-    TE.tryCatch<StartError, void>(
-      () => {
-        return new Promise<void>((resolve, _reject) => {
-          const serverOptions: ServerOptions = {
-            path: nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
-            type: "stdio",
-          };
-
-          const clientOptions: ClientOptions = {
-            syntaxes: ["elixir"],
-          };
-
-          const client: LanguageClient = new LanguageClient(
-            "elixirLS",
-            nova.extension.name,
-            serverOptions,
-            clientOptions,
-          );
-
-          compositeDisposable.add(
-            client.onDidStop((err) => {
-              let message = nova.localize("Elixir Language Server stopped unexpectedly");
-              if (err) {
-                message += `:\n\n${err.toString()}`;
-              } else {
-                message += ".";
-              }
-              message += `\n\n${nova.localize(
-                "Please report this, along with any output in the Extension Console.",
-              )}`;
-
-              nova.workspace.showActionPanel(
-                message,
-                { buttons: [nova.localize("Restart"), nova.localize("Ignore")] },
-                (idx) => {
-                  if (idx == 0) {
-                    // nova.commands.invoke("x.x.reload");
-                  }
-                },
-              );
-            }),
-          );
-
-          // client.start();
-          // languageClient = O.some(client);
-
-          resolve();
-        });
-      },
-      () => ({
-        _tag: "startError",
-        reason: `${nova.localize("Failed to start language server")}.`,
-      }),
-    ),
-  ]);
-};
-
-const safeShutdown = (): TE.TaskEither<ShutdownError, void> => {
-  return TE.tryCatch<ShutdownError, void>(
-    () => {
-      return new Promise<void>((resolve, _reject) => {
-        pipe(
-          languageClient,
-          O.fold(constVoid, (client) => {
-            client.stop();
-          }),
-        );
-
-        resolve();
-      });
-    },
-    () => ({ _tag: "shutdownError", reason: "Uh oh... Failed to deactivate plugin." }),
-  );
-};
-
 /*
  * Main
  */
+
+const extensionDisposable: CompositeDisposable = new CompositeDisposable();
+let languageClient: O.Option<LanguageClient> = O.none;
 
 let configs: ExtensionSettings = {
   workspace: {
@@ -243,53 +132,190 @@ let configs: ExtensionSettings = {
   },
 };
 
-const compositeDisposable: CompositeDisposable = new CompositeDisposable();
-let languageClient: O.Option<LanguageClient> = O.none;
+const workspaceConfigsLens = Lens.fromPath<ExtensionSettings>()(["workspace"]);
+const globalConfigsLens = Lens.fromPath<ExtensionSettings>()(["global"]);
+
+/**
+ * Gets a value giving precedence to workspace over global extension values.
+ * @param {ExtensionSettings} configs - extension settings
+ */
+const selectFormatOnSave = (configs: ExtensionSettings): boolean => {
+  const workspace = workspaceConfigsLens.get(configs);
+  const global = globalConfigsLens.get(configs);
+
+  return workspace.formatOnSave || global.formatOnSave;
+};
+
+const safeStart = () => {
+  return TE.sequenceSeqArray<void, MakeExecutableError | StartError>([
+    TE.tryCatch<MakeExecutableError, void>(
+      () => {
+        return new Promise<void>((resolve, reject) => {
+          const process = new Process("/usr/bin/env", {
+            args: ["chmod", "a+x", "debugger.sh", "language_server.sh", "launch.sh"],
+            cwd: nova.path.join(nova.extension.path, "elixir-ls"),
+          });
+
+          process.onDidExit((status) => (status === 0 ? resolve() : reject()));
+
+          process.start();
+        });
+      },
+      (_) => ({
+        _tag: "makeExecutableError",
+        reason: `${nova.localize("Failed to make files executable")}.`,
+      }),
+    ),
+    TE.tryCatch<StartError, void>(
+      () => {
+        return new Promise<void>((resolve, _reject) => {
+          const serverOptions: ServerOptions = {
+            path: nova.path.join(nova.extension.path, "elixir-ls", "language_server.sh"),
+            type: "stdio",
+          };
+
+          const clientOptions: ClientOptions = {
+            initializationOptions: {
+              elixirLS: {
+                dialyzerEnabled: true,
+                fetchDeps: true,
+                mixEnv: "test",
+              },
+            },
+            syntaxes: ["elixir"],
+          };
+
+          const client: LanguageClient = new LanguageClient(
+            "elixirLS",
+            nova.extension.name,
+            serverOptions,
+            clientOptions,
+          );
+
+          extensionDisposable.add(
+            client.onDidStop((err) => {
+              let message = nova.localize("Elixir Language Server stopped unexpectedly");
+              if (err) {
+                message += `:\n\n${err.toString()}`;
+              } else {
+                message += ".";
+              }
+              message += `\n\n${nova.localize(
+                "Please report this, along with any output in the Extension Console.",
+              )}`;
+
+              nova.workspace.showActionPanel(
+                message,
+                { buttons: [nova.localize("Restart"), nova.localize("Ignore")] },
+                (idx) => {
+                  if (idx == 0) {
+                    nova.commands.invoke(ExtensionConfigKeys.Restart);
+                  }
+                },
+              );
+            }),
+          );
+
+          client.start();
+
+          languageClient = O.some(client);
+
+          resolve();
+        });
+      },
+      (_) => ({
+        _tag: "startError",
+        reason: `${nova.localize("Failed to start language server")}.`,
+      }),
+    ),
+  ]);
+};
+
+const safeShutdown = (): TE.TaskEither<ShutdownError, void> => {
+  return TE.tryCatch<ShutdownError, void>(
+    () => {
+      return new Promise<void>((resolve, _reject) => {
+        pipe(
+          languageClient,
+          O.fold(constVoid, (client) => {
+            client.stop();
+            languageClient = O.none;
+          }),
+        );
+
+        resolve();
+      });
+    },
+    (_) => ({ _tag: "shutdownError", reason: "Uh oh... Failed to deactivate plugin." }),
+  );
+};
+
+const handleAddTextEditor = (editor: TextEditor): void => {
+  pipe(
+    O.fromNullable(editor.document.syntax),
+    O.chain(O.fromPredicate((syntax) => Str.Eq.equals(syntax, "elixir"))),
+    O.fold(constVoid, (_) => {
+      const editorDisposable = new CompositeDisposable();
+      extensionDisposable.add(editor.onDidDestroy(() => editorDisposable.dispose()));
+
+      const shouldFormatOnSave = selectFormatOnSave(configs);
+
+      if (shouldFormatOnSave) {
+        editorDisposable.add(editor.onWillSave(formatDocument(languageClient)));
+      }
+    }),
+  );
+};
 
 export const activate = (): void => {
   console.log(`${nova.localize("Activating")}...`);
   showNotification(`${nova.localize("Starting extension")}...`);
 
-  compositeDisposable.add(
-    nova.workspace.onDidAddTextEditor((editor: TextEditor): void => {
-      // add saveListener
-    }),
-  );
+  extensionDisposable.add(nova.workspace.onDidAddTextEditor(handleAddTextEditor));
 
-  compositeDisposable.add(
-    nova.commands.register(ExtensionConfigKeys.FindReferences, findReferences),
-  );
-
-  compositeDisposable.add(
-    nova.commands.register(ExtensionConfigKeys.FormatDocument, formatDocument),
-  );
-
-  safeStart()().then(
-    E.fold(
-      (err) => {
-        match(err)
-          .with({ _tag: "makeExecutableError" }, ({ reason }) => console.error(reason))
-          .with({ _tag: "startError" }, ({ reason }) => console.error(reason))
-          .exhaustive();
-      },
-      () => console.log(`${nova.localize("Activated")} 🎉`),
-    ),
-  );
+  //   safeStart()().then(
+  //     E.fold(
+  //       (err) => {
+  //         return match(err)
+  //           .with({ _tag: "makeExecutableError" }, ({ reason }) => console.error(reason))
+  //           .with({ _tag: "startError" }, ({ reason }) => console.error(reason))
+  //           .exhaustive();
+  //       },
+  //       (_) => {
+  //         extensionDisposable.add(
+  //           nova.commands.register(
+  //             ExtensionConfigKeys.FindReferences,
+  //             findReferences(languageClient),
+  //           ),
+  //         );
+  //
+  //         extensionDisposable.add(
+  //           nova.commands.register(
+  //             ExtensionConfigKeys.FormatDocument,
+  //             formatDocument(languageClient),
+  //           ),
+  //         );
+  //
+  //         console.log(`${nova.localize("Activated")} 🎉`);
+  //       },
+  //     ),
+  //   );
+  console.log(`${nova.localize("Activated")} 🎉`);
 };
 
 export const deactivate = (): void => {
   console.log(`${nova.localize("Deactivating")}...`);
 
-  compositeDisposable.dispose();
-
   safeShutdown()().then(
     E.fold(
       (err) => {
-        match(err)
+        return match(err)
           .with({ _tag: "shutdownError" }, ({ reason }) => console.error(reason))
           .exhaustive();
       },
-      () => console.log(`${nova.localize("Deactivated. Come back soon")} :)`),
+      (_) => console.log(`${nova.localize("Deactivated. Come back soon")} :)`),
     ),
   );
+
+  extensionDisposable.dispose();
 };

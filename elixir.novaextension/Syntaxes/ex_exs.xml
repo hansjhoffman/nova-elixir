@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <syntax name="elixir">
     <meta>
         <name>Elixir</name>
@@ -9,14 +9,15 @@
     
     <detectors>
         <extension priority="1.0">ex,exs</extension>
+        <filename priority="1.0">mix.lock</filename>
     </detectors>
     
     <indentation>
         <increase>
-            <expression></expression>
+            <expression />
         </increase>
         <decrease>
-            <expression></expression>
+            <expression />
         </decrease>
     </indentation>
     
@@ -30,7 +31,6 @@
         <pair open="{" close="}" />
         <pair open="[" close="]" />
         <pair open="(" close=")" />
-        <pair open="&lt;&lt;" close="&gt;&gt;" />
     </brackets>
     
     <surrounding-pairs>
@@ -66,6 +66,17 @@
                 <capture number="1" name="elixir.puncuation.definition.begin" />
                 <capture number="2" name="elixir.comment.content" />
             </scope>
+            <scope name="elixir.comment.documentation.heredoc" spell-check="true">
+                <starts-with>
+                    <expression>@(module|type)?doc\s+(~S)?&quot;&quot;&quot;</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>&quot;&quot;&quot;</expression>
+                </ends-with>
+            </scope>
+            <scope name="elixir.comment.documentation.false">
+                <expression>@(module|type)?doc\s+(false)$</expression>
+            </scope>
         </collection>
         
         <!-- 
@@ -78,72 +89,83 @@
         `Y8bod88P" `Y8bod8P' o888o   o888o o888o o888o o888o   "888" o888o `Y8bod8P' o888o o888o 8""888P' 
         -->
         <collection name="definitions">
-            <scope name="elixir.import">
-                <starts-with>
-                    <expression>\b(alias|import|require|use)\b</expression>
-                    <capture number="0" name="elixir.keyword" />
-                </starts-with>
-                <ends-with>
-                    <expression>$</expression>
-                </ends-with>
-                <subscopes>
-                    <scope name="elixir.keyword">
-                        <expression>as:</expression>
-                    </scope>
-                    <scope name="elixir.import.identifier.symbol">
-                        <symbol type="package" scope="external" />
-                        <expression>([a-zA-Z][a-zA-Z0-9\-_\.]+)</expression>
-                    </scope>
-                    <scope name="elixir.separator">
-                        <expression>,</expression>
-                    </scope>
-                    <!-- <include syntax="self" collection="values" /> -->
-                </subscopes>
-            </scope>
         </collection>
-        
+
         <!-- 
-            oooo                                                                        .o8           
-            `888                                                                       "888           
-             888  oooo   .ooooo.  oooo    ooo oooo oooo    ooo  .ooooo.  oooo d8b  .oooo888   .oooo.o 
-             888 .8P'   d88' `88b  `88.  .8'   `88. `88.  .8'  d88' `88b `888""8P d88' `888  d88(  "8 
-             888888.    888ooo888   `88..8'     `88..]88..8'   888   888  888     888   888  `"Y88b.  
-             888 `88b.  888    .o    `888'       `888'`888'    888   888  888     888   888  o.  )88b 
-            o888o o888o `Y8bod8P'     .8'         `8'  `8'     `Y8bod8P' d888b    `Y8bod88P" 8""888P' 
-                                  .o..P'                                                              
-                                  `Y8P'                                                               
+        oooo                                                                        .o8           
+        `888                                                                       "888           
+         888  oooo   .ooooo.  oooo    ooo oooo oooo    ooo  .ooooo.  oooo d8b  .oooo888   .oooo.o 
+         888 .8P'   d88' `88b  `88.  .8'   `88. `88.  .8'  d88' `88b `888""8P d88' `888  d88(  "8 
+         888888.    888ooo888   `88..8'     `88..]88..8'   888   888  888     888   888  `"Y88b.  
+         888 `88b.  888    .o    `888'       `888'`888'    888   888  888     888   888  o.  )88b 
+        o888o o888o `Y8bod8P'     .8'         `8'  `8'     `Y8bod8P' d888b    `Y8bod88P" 8""888P' 
+                              .o..P'                                                              
+                              `Y8P'                                                               
         -->
         <collection name="keywords">
-            <scope name="elixir.keyword">
+            <scope name="elixir.keyword.construct">
                 <strings>
-                    <string>after</string>
-                    <string>assert</string>
-                    <string>case</string>
-                    <string>cond</string>
-                    <string>catch</string>
+                    <string>alias</string>
                     <string>def</string>
                     <string>defdelegate</string>
+                    <string>defexception</string>
                     <string>defguard</string>
                     <string>defguardp</string>
                     <string>defimpl</string>
                     <string>defmacro</string>
+                    <string>defmacrop</string>
                     <string>defmodule</string>
+                    <string>defoverridable</string>
                     <string>defp</string>
                     <string>defprotocol</string>
                     <string>defstruct</string>
                     <string>describe</string>
                     <string>do</string>
-                    <string>else</string>
                     <string>end</string>
                     <string>fn</string>
-                    <string>if</string>
+                    <string>import</string>
                     <string>quote</string>
+                    <string>test</string>
+                    <string>unquote</string>
+                    <string>use</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.condition">
+                <strings>
+                    <string>case</string>
+                    <string>cond</string>
+                    <string>else</string>
+                    <string>if</string>
+                    <string>when</string>
+                    <string>unless</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.statement">
+                <strings>
+                    <string>assert</string>
+                    <string>catch</string>
+                    <string>exit</string>
+                    <string>for</string>
+                    <string>raise</string>
                     <string>receive</string>
                     <string>rescue</string>
-                    <string>test</string>
+                    <string>throw</string>
                     <string>try</string>
-                    <string>unquote</string>
                     <string>with</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.operator">
+                <strings>
+                    <string>after</string>
+                    <string>and</string>
+                    <string>in</string>
+                    <string>not</string>
+                    <string>or</string>
+                </strings>
+            </scope>
+            <scope name="elixir.keyword.self">
+                <strings>
+                    <string>super</string>
                 </strings>
             </scope>
         </collection>
@@ -169,15 +191,50 @@
                     <string>nil</string>
                 </strings>
             </scope>
+            <scope name="elixir.value.number.binary">
+                <expression>\b0b[01]+\b</expression>
+            </scope>
             <scope name="elixir.value.number.hex">
                 <expression>\b0x[a-fA-F0-9]+\b</expression>
             </scope>
-            <scope name="elixir.value.number.oct">
+            <scope name="elixir.value.number.octal">
                 <expression>\b0o[0-7]+\b</expression>
             </scope>
-            <scope name="elixir.value.number">
-                <expression>\b\-?(?:\d+(?:\.\d)?|(?:\.\d+))\b</expression>
-                <!-- needs to handle _ as possible character e.g. 10_000 -->
+            <scope name="elixir.value.number.float">
+                <!-- https://regexr.com/62tp7 -->
+                <expression>
+                    (?x:                # turn on extended mode, allows arbitrary whitespace
+                        (
+                            [-]?        # optional minus sign
+                            [0-9]*[.]   # zero or more digits followed by a '.'
+                            [0-9]+      # at least one digit
+                            [eE]        # exponent indicator
+                            [-+]?       # optional minus/plus sign
+                            [0-9]+      # at least one digit
+                        )
+                        \b              # bounded
+                    )
+                </expression>
+            </scope>
+            <scope name="elixir.value.number.decimal">
+                <!-- https://regexr.com/62tpa -->
+                <!-- <expression>\-?(?:\d+(?:\.\d)?|(?:\.\d+))\b</expression> -->
+                <!-- <expression>
+                    (?x:                      # turn on extended mode, allows arbitrary whitespace
+                        (
+                            10{0,2}(?:_0{3})+ # match numbers like 1_000_000
+                            |                 # or match decimals
+                            (
+                                [-]?          # optional minus sign
+                                [0-9]*        # zero or more digits
+                                [.]?          # optional '.'
+                                [0-9]*        # zero or more digits
+                            )
+                            \b
+                        ) 
+                    )
+                </expression> -->
+                <expression />
             </scope>
             <scope name="elixir.value.list">
                 <symbol type="expression">
@@ -244,21 +301,23 @@
         </collection>
         
         <!-- 
-             o8o        .o8                            .    o8o   .o88o.  o8o                              
-             `"'       "888                          .o8    `"'   888 `"  `"'                              
-            oooo   .oooo888   .ooooo.  ooo. .oo.   .o888oo oooo  o888oo  oooo   .ooooo.  oooo d8b  .oooo.o 
-            `888  d88' `888  d88' `88b `888P"Y88b    888   `888   888    `888  d88' `88b `888""8P d88(  "8 
-             888  888   888  888ooo888  888   888    888    888   888     888  888ooo888  888     `"Y88b.  
-             888  888   888  888    .o  888   888    888 .  888   888     888  888    .o  888     o.  )88b 
-            o888o `Y8bod88P" `Y8bod8P' o888o o888o   "888" o888o o888o   o888o `Y8bod8P' d888b    8""888P' 
+         o8o        .o8                            .    o8o   .o88o.  o8o                              
+         `"'       "888                          .o8    `"'   888 `"  `"'                              
+        oooo   .oooo888   .ooooo.  ooo. .oo.   .o888oo oooo  o888oo  oooo   .ooooo.  oooo d8b  .oooo.o 
+        `888  d88' `888  d88' `88b `888P"Y88b    888   `888   888    `888  d88' `88b `888""8P d88(  "8 
+         888  888   888  888ooo888  888   888    888    888   888     888  888ooo888  888     `"Y88b.  
+         888  888   888  888    .o  888   888    888 .  888   888     888  888    .o  888     o.  )88b 
+        o888o `Y8bod88P" `Y8bod8P' o888o o888o   "888" o888o o888o   o888o `Y8bod8P' d888b    8""888P' 
         -->
         <collection name="identifiers">
-            <scope name="elixir.identifier.variable.instance">
-                <expression>@[a-z][A-Za-z0-9_]*</expression>
+            <!-- https://hexdocs.pm/elixir/master/Module.html#module-module-attributes -->
+            <scope name="elixir.module.attributes">
+                <expression>(@[a-z]\w*)</expression>
+                <capture number="1" name="elixir.identifier.variable.instance" />
             </scope>
             <scope name="elixir.function.typespec">
                 <starts-with>
-                    <expression>(@spec|@type)</expression>
+                    <expression>(@spec|@type|@typep)</expression>
                     <capture number="0" name="elixir.identifier.typespec" />
                 </starts-with>
                 <ends-with>
@@ -269,19 +328,34 @@
                         <expression>::</expression>
                     </scope>
                     <scope name="elixir.operator">
-                        <expression>\-></expression>
+                        <expression>\-&gt;</expression>
                     </scope>
                 </subscopes>
             </scope>
-            <!-- <scope name="elixir.identifier.module.submodule">
-                <expression>\b(?&lt;=\.)([a-zA-Z_][a-zA-Z0-9_]*)(?!\()\b</expression>
-            </scope> -->
-            <!-- <scope name="elixir.identifier.function">
-                <expression>\b(?&lt;!\.)([a-zA-Z_][a-zA-Z0-9_]*)(?=\()\b</expression>
-                needs to be updated to not be preceeded by ~ for sigils
-            </scope> -->
-            <scope name="elixir.identifier.constant.atom">
-                <expression>(:\w+)\b</expression>
+            
+            <!-- https://hexdocs.pm/elixir/1.12/syntax-reference.html#atoms -->
+            <scope name="elixir.identifier.constant.atom.quoted">
+                <expression>:["'].+["']\b</expression>
+            </scope>
+            <scope name="elixir.identifier.constant.atom.unquoted">
+                <expression>
+                    (?x:                # turn on extended mode, allows arbitrary whitespace
+                       :[A-Za-z]        # must start with ':' and alpha
+                       [A-Za-z0-9_@]*   # zero or more alphanumeric to include '_' or '@'
+                       [!?]?            # can end with '!' or '?'
+                    )
+                </expression>
+            </scope>
+            <scope name="elixir.identifier.function">
+                <expression>
+                    (?x:                # turn on extended mode, allows arbitrary whitespace
+                        \b              # bounded
+                        (?&lt;!\.)      # negative lookbehind to ensure no '.' found
+                        ([a-z]\w*[!?]?) # function name must start with lower case and can end with '!' or '?'
+                        (?=\()          # positive lookahead for '('
+                    )
+                </expression>
+                <capture number="1" name="elixir.identifier.function.name" />
             </scope>
         </collection>
         
@@ -296,7 +370,36 @@
                                                     d"     YD           
                                                     "Y88888P'  
         -->
+        <collection name="interpolations">
+            <scope>
+                <starts-with>
+                    <expression>(\#\{)</expression>
+                    <capture number="0" name="elixir.string-template" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="0" name="elixir.string-template" />
+                </ends-with>
+                <subscopes>               
+                    <include syntax="self" collection="keywords" />
+                    <include syntax="self" collection="values" />
+                    <include syntax="self" collection="syntax" />
+                </subscopes>
+            </scope>
+        </collection>
+        
         <collection name="strings">
+            <!-- Sigils -->
+            <include syntax="self" collection="elixir.sigil.char-list" />
+            <include syntax="self" collection="elixir.sigil.regex" />
+            <include syntax="self" collection="elixir.sigil.string" />
+            <include syntax="self" collection="elixir.sigil.word-list" />
+            <include syntax="self" collection="elixir.sigil.naive-date-time" />
+            <include syntax="self" collection="elixir.sigil.date-time" />
+            <include syntax="self" collection="elixir.sigil.time" />
+            <include syntax="self" collection="elixir.sigil.custom" />
+            
+            <!-- Strings  -->
             <scope name="elixir.string.multiline" spell-check="true">
                 <symbol type="comment">
                     <context behavior="subtree" />
@@ -311,30 +414,1234 @@
             <scope name="elixir.string.double-quoted">
                 <starts-with>
                     <expression>&quot;</expression>
-                    <capture number="0" name="elixir.string.double-quoted.delimiter" />
+                    <capture number="0" name="elixir.string.quoted.double" />
                 </starts-with>
                 <ends-with>
-                    <expression>(?:[^&quot;\\]|\\.)*(&quot;|$)</expression>
-                    <capture number="1" name="elixir.string.double-quoted.delimiter" />
+                    <expression>&quot;|(?:(?&lt;!\\)$)</expression>
+                    <capture number="0" name="elixir.string.quoted.double" />
                 </ends-with>
                 <subscopes>
-                    <include syntax="self" collection="string-interpolation" />
+                    <include syntax="self" collection="interpolations" />
                 </subscopes>
             </scope>
         </collection>
-        <collection name="string-interpolation">
-            <scope name="elixir.string.interpolation">
-                <!-- <expression>\#\{.*?\}</expression> -->
+        
+        <!-- Sigils -->
+        <collection name="elixir.sigil.char-list">
+            <scope name="elixir.string.sigil.char-list.lowercase.pointy-brackets">
                 <starts-with>
-                    <expression>(\#\{)</expression>
-                    <capture number="0" name="elixir.string-interpolation" />
+                    <expression>(~c&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~C&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.char-list.lowercase.curly-brackets">
+                <starts-with>
+                    <expression>(~c\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
                 </starts-with>
                 <ends-with>
                     <expression>(\})</expression>
-                    <capture number="0" name="elixir.string-interpolation" />
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~C\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
                 <subscopes>
-                    <!-- <include syntax="self" collection="values" /> -->
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.char-list.lowercase.square-brackets">
+                <starts-with>
+                    <expression>(~c\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\])</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~C\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\])</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.char-list.lowercase.parens">
+                <starts-with>
+                    <expression>(~c\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\))</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.parens">
+                <starts-with>
+                    <expression>(~C\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\))</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.char-list.lowercase.pipes">
+                <starts-with>
+                    <expression>(~c\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.pipes">
+                <starts-with>
+                    <expression>(~C\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.char-list.lowercase.forward-slashes">
+                <starts-with>
+                    <expression>(~c\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~C\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.char-list.lowercase.double-quotes">
+                <starts-with>
+                    <expression>(~c&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~C&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.char-list.lowercase.single-quotes">
+                <starts-with>
+                    <expression>(~c&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.char-list.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~C&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <collection name="elixir.sigil.regex">
+            <scope name="elixir.sigil.regex.lowercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~r&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~R&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.regex.lowercase.curly-brackets">
+                <starts-with>
+                    <expression>(~r\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\}[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~R\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\}[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.regex.lowercase.square-brackets">
+                <starts-with>
+                    <expression>(~r\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\][fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~R\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\][fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.regex.lowercase.parens">
+                <starts-with>
+                    <expression>(~r\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\)[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.parens">
+                <starts-with>
+                    <expression>(~R\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\)[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.regex.lowercase.pipes">
+                <starts-with>
+                    <expression>(~r\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.pipes">
+                <starts-with>
+                    <expression>(~R\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.regex.lowercase.forward-slashes">
+                <starts-with>
+                    <expression>(~r\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~R\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.regex.lowercase.double-quotes">
+                <starts-with>
+                    <expression>(~r&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\&quot;[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~R\&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\&quot;[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.regex.lowercase.single-quotes">
+                <starts-with>
+                    <expression>(~r&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\&apos;[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.regex.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~R\&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\&apos;[fimsuUx]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <collection name="elixir.sigil.string">
+            <scope name="elixir.sigil.string.lowercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~s&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~S&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.string.lowercase.curly-brackets">
+                <starts-with>
+                    <expression>(~s\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~S\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.string.lowercase.square-brackets">
+                <starts-with>
+                    <expression>(~s\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\])</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~S\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\])</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.string.lowercase.parens">
+                <starts-with>
+                    <expression>(~s\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\))</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.parens">
+                <starts-with>
+                    <expression>(~S\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\))</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.string.lowercase.pipes">
+                <starts-with>
+                    <expression>(~s\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.pipes">
+                <starts-with>
+                    <expression>(~S\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.string.lowercase.forward-slashes">
+                <starts-with>
+                    <expression>(~s\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~S\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.string.lowercase.double-quotes">
+                <starts-with>
+                    <expression>(~s&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~S&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.sigil.string.lowercase.single-quotes">
+                <starts-with>
+                    <expression>(~s&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.sigil.string.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~S&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <collection name="elixir.sigil.word-list">
+            <scope name="elixir.string.sigil.word-list.lowercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~w&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~W&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.word-list.lowercase.curly-brackets">
+                <starts-with>
+                    <expression>(~w\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\}[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~W\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\}[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.word-list.lowercase.square-brackets">
+                <starts-with>
+                    <expression>(~w\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\][acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~W\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\][acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.word-list.lowercase.parens">
+                <starts-with>
+                    <expression>(~w\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\)[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.parens">
+                <starts-with>
+                    <expression>(~W\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\)[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.word-list.lowercase.pipes">
+                <starts-with>
+                    <expression>(~w\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.pipes">
+                <starts-with>
+                    <expression>(~W\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.word-list.lowercase.forward-slashes">
+                <starts-with>
+                    <expression>(~w\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~W\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.word-list.lowercase.double-quotes">
+                <starts-with>
+                    <expression>(~w&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~W&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.word-list.lowercase.single-quotes">
+                <starts-with>
+                    <expression>(~w&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.word-list.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~W&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;[acs]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <collection name="elixir.sigil.naive-date-time">
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~N&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~N\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~N\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\])</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.parens">
+                <starts-with>
+                    <expression>(~N\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\))</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.pipes">
+                <starts-with>
+                    <expression>(~N\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~N\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~N&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.naive-date-time.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~N&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+        </collection>
+        
+        <collection name="elixir.sigil.date-time">
+            <scope name="elixir.string.sigil.date-time.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~U&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.date-time.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~U\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.date-time.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~U\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\])</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.date-time.uppercase.parens">
+                <starts-with>
+                    <expression>(~U\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\))</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.date-time.uppercase.pipes">
+                <starts-with>
+                    <expression>(~U\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.date-time.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~U\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.date-time.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~U&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.date-time.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~U&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+        </collection>
+        
+        <collection name="elixir.sigil.time">
+            <scope name="elixir.string.sigil.time.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~T&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.time.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~T\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\})</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.time.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~T\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\])</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.time.uppercase.parens">
+                <starts-with>
+                    <expression>(~T\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\))</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.time.uppercase.pipes">
+                <starts-with>
+                    <expression>(~T\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.time.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~T\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.time.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~T&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.time.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~T&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+        </collection>
+        
+        <collection name="elixir.sigil.custom">
+            <scope name="elixir.string.sigil.custom.lowercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~[a-z]&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.pointy-brackets">
+                <starts-with>
+                    <expression>(~[A-Z]&lt;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&gt;[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.custom.lowercase.curly-brackets">
+                <starts-with>
+                    <expression>(~[a-z]\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\}[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.curly-brackets">
+                <starts-with>
+                    <expression>(~[A-Z]\{)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\}[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.custom.lowercase.square-brackets">
+                <starts-with>
+                    <expression>(~[a-z]\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\][a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.square-brackets">
+                <starts-with>
+                    <expression>(~[A-Z]\[)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\][a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.custom.lowercase.parens">
+                <starts-with>
+                    <expression>(~[a-z]\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\)[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.parens">
+                <starts-with>
+                    <expression>(~[A-Z]\()</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\)[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.custom.lowercase.pipes">
+                <starts-with>
+                    <expression>(~[a-z]\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.pipes">
+                <starts-with>
+                    <expression>(~[A-Z]\|)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\|[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.custom.lowercase.forward-slashes">
+                <starts-with>
+                    <expression>(~[a-z]\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.forward-slashes">
+                <starts-with>
+                    <expression>(~[A-Z]\/)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(\/[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.custom.lowercase.double-quotes">
+                <starts-with>
+                    <expression>(~[a-z]&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.double-quotes">
+                <starts-with>
+                    <expression>(~[A-Z]&quot;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&quot;[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
+                </subscopes>
+            </scope>
+            
+            <scope name="elixir.string.sigil.custom.lowercase.single-quotes">
+                <starts-with>
+                    <expression>(~[a-z]&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+            </scope>
+            <scope name="elixir.string.sigil.custom.uppercase.single-quotes">
+                <starts-with>
+                    <expression>(~[A-Z]&apos;)</expression>
+                    <capture number="1" name="elixir.string.sigil.begin" />
+                </starts-with>
+                <ends-with>
+                    <expression>(&apos;[a-z]*)</expression>
+                    <capture number="1" name="elixir.string.sigil.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="interpolations" />
                 </subscopes>
             </scope>
         </collection>
@@ -352,25 +1659,25 @@
         -->
         <collection name="syntax">
             <!-- Brackets -->
-            <scope name="elixir.bracket">
-                <expression>(\{ | \})</expression>
+            <scope name="elixir.bracket.curly">
+                <expression>(\{|\})</expression>
             </scope>
-            <scope name="elixir.bracket">
-                <expression>(\[ | \])</expression>
+            <scope name="elixir.bracket.square">
+                <expression>(\[|\])</expression>
             </scope>
-            <scope name="elixir.bracket">
-                <expression>(\( | \))</expression>
+            <scope name="elixir.bracket.parens">
+                <expression>(\(|\))</expression>
             </scope>
             
             <!-- Operators https://hexdocs.pm/elixir/1.12/operators.html#general-operators -->
             <scope name="elixir.operator">
-                <expression>\s\=\s</expression>
+                <expression>\=\=\=</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\=\=</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\=\=\=</expression>
+                <expression>\s\=\s</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\=~</expression>
@@ -403,10 +1710,10 @@
                 <expression>\-</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\*</expression>
+                <expression>\*\*</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\*\*</expression>
+                <expression>\*</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\/</expression>
@@ -415,31 +1722,37 @@
                 <expression>\b%\b</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>&lt;</expression>
-            </scope>
-            <scope name="elixir.operator">
                 <expression>&lt;&lt;&lt;</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>&gt;</expression>
+                <expression>&lt;&lt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&lt;</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>&gt;&gt;&gt;</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>(and | &amp;&amp; | &amp;&amp;&amp;)</expression>
+                <expression>&gt;&gt;</expression>
             </scope>
             <scope name="elixir.operator">
-                <expression>\b(or | \|\| | \|\|\|)\b</expression>
+                <expression>&gt;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&amp;&amp;&amp;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>&amp;&amp;</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b(\|\|\|)\b</expression>
+            </scope>
+            <scope name="elixir.operator">
+                <expression>\b(\|\|)\b</expression>
             </scope>
             <scope name="elixir.operator">
                 <expression>\!</expression>
-            </scope>
-            <scope name="elixir.operator">
-                <expression>\b(not)\b</expression>
-            </scope>
-            <scope name="elixir.operator">
-                <expression>\b(in | not in)\b</expression>
             </scope>
             <scope name="elixir.operator.pin">
                 <expression>\^</expression>

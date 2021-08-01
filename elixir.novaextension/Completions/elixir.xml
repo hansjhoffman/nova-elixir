@@ -1,17 +1,120 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <completions>
     <provider>
-        <selector>elixir</selector>
+        <syntax>elixir</syntax>
+        <selector>*:not(string,comment)</selector>
         <expression>\b[a-zA-Z0-9-_]*</expression>
-        <set>elixir.entities</set>
+        
+        <symbols type="function">
+            <behavior>
+                <arguments prefix="(" suffix=")" separator=", " />
+            </behavior>
+        </symbols>
+        <symbols type="constant,variable,argument" />
+        
+        <set>elixir.keywords</set>
+        <set>elixir.classes.core</set>
+        <set>elixir.exceptions.core</set>
     </provider>
     
-    <!-- Entities -->
-    <set name="elixir.entities">
-        <completion string="&quot;" />
-        <completion string="&amp;" />
-        <completion string="&apos;" />
-        <completion string="&lt;" />
-        <completion string="&gt;" />
+    <!-- Keywords -->
+    <set name="elixir.keywords" symbol="statement">
+    </set>
+    
+    <!-- Built-in classes -->
+    <set name="elixir.classes.core" symbol="class">
+        <!-- Basic Types -->
+        <completion string="Atom" />
+        <completion string="Base" />
+        <completion string="Bitwise" />
+        <completion string="Date" />
+        <completion string="DateTime" />
+        <completion string="Exception" />
+        <completion string="Float" />
+        <completion string="Function" />
+        <completion string="Integer" />
+        <completion string="Module" />
+        <completion string="Record" />
+        <completion string="Regex" />
+        <completion string="String" />
+        <completion string="Time" />
+        <completion string="Tuple" />
+        <completion string="URI" />
+        <completion string="Version" />
+        <!-- Collections and Enumerables -->
+        <completion string="Access" />
+        <completion string="Date.Range" />
+        <completion string="Enum" />
+        <completion string="Keyword" />
+        <completion string="List" />
+        <completion string="Map" />
+        <completion string="MapSet" />
+        <completion string="Range" />
+        <completion string="Stream" />
+        <!-- IO and System -->
+        <completion string="File" />
+        <completion string="IO" />
+        <completion string="OptionParser" />
+        <completion string="Path" />
+        <completion string="Port" />
+        <completion string="StringIO" />
+        <completion string="System" />
+        <!-- Calendar -->
+        <completion string="Calendar" />
+        <!-- Processes and Applications -->
+        <completion string="Agent" />
+        <completion string="Application" />
+        <completion string="Config" />
+        <completion string="DynamicSupervisor" />
+        <completion string="GenServer" />
+        <completion string="Node" />
+        <completion string="Process" />
+        <completion string="Registry" />
+        <completion string="Supervisor" />
+        <completion string="Task" />
+        <!-- Protocols -->
+        <completion string="Collectable" />
+        <completion string="Enumerable" />
+        <completion string="Inspect" />
+        <completion string="Protocol" />
+        <!-- Code and Macros -->
+        <completion string="Code" />
+        <completion string="Macro" />
+        <!-- Other -->
+        <completion string="Mix" />
+    </set>
+    
+    <!-- Built-in exceptions -->
+    <set name="elixir.exceptions.core" symbol="class">
+        <completion string="ArgumentError" />
+        <completion string="ArithmeticError" />
+        <completion string="BadArityError" />
+        <completion string="BadBooleanError" />
+        <completion string="BadFunctionError" />
+        <completion string="BadMapError" />
+        <completion string="BadStructError" />
+        <completion string="CaseClauseError" />
+        <completion string="Code.LoadError" />
+        <completion string="CompileError" />
+        <completion string="CondClauseError" />
+        <completion string="Enum.EmptyError" />
+        <completion string="Enum.OutOfBoundsError" />
+        <completion string="ErlangError" />
+        <completion string="File.CopyError" />
+        <completion string="File.Error" />
+        <completion string="File.LinkError" />
+        <completion string="File.RenameError" />
+        <completion string="FunctionClauseError" />
+        <completion string="IO.StreamError" />
+        <completion string="Inspect.Error" />
+        <completion string="KeyError" />
+        <completion string="MatchError" />
+        <completion string="OptionParser.ParseError" />
+        <completion string="Protocol.UndefinedError" />
+        <completion string="Regex.CompileError" />
+        <completion string="RuntimeError" />
+        <completion string="SyntaxError" />
+        <completion string="SystemLimitError" />
+        <completion string="TokenMissingError" />
     </set>
 </completions>

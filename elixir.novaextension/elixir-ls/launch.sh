@@ -70,4 +70,5 @@ fi
 
 export ERL_LIBS="$SCRIPTPATH:$ERL_LIBS"
 
-exec elixir --erl "+sbwt none +sbwtdcpu none +sbwtdio none"  -e "$ELS_SCRIPT"
+# exec elixir --erl "+sbwt none +sbwtdcpu none +sbwtdio none"  -e "$ELS_SCRIPT"
+exec /nix/store/gvdmsp52fqwi1psvz8pllbr56aaa5kiz-elixir-1.12.1/bin/elixir --erl "+sbwt none +sbwtdcpu none +sbwtdio none"  -e "$ELS_SCRIPT"

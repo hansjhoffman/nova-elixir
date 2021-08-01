@@ -1,8 +1,201 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <syntax name="eex">
     <meta>
-        <name>Embeded Elixir</name>
+        <name>EEx</name>
         <type>markup</type>
         <preferred-file-extension>eex</preferred-file-extension>
     </meta>
+    
+    <detectors>
+        <extension priority="1.0">eex,leex</extension>
+    </detectors>
+    
+    <comments>
+        <multiline>
+            <starts-with>
+                <expression>&lt;!--</expression>
+            </starts-with>
+            <ends-with>
+                <expression>--&gt;</expression>
+            </ends-with>
+        </multiline>
+    </comments>
+    
+    <scopes>
+        <unknown spell-check="true" lookup="dictionary" />
+        
+        <include syntax="self" collection="eex.smart-engine" />
+    </scopes>
+    
+    <collections>
+        <collection name="eex.smart-engine">
+            <scope name="eex.expression.evaluated">
+                <starts-with>
+                    <expression>&lt;%=</expression>
+                    <capture number="0" name="eex.tag.framework.expression.start" />
+                </starts-with>
+                <ends-with>
+                    <expression>%&gt;</expression>
+                    <capture number="0" name="eex.tag.framework.expression.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="keywords" />
+                    <include syntax="self" collection="values" />
+                    <include syntax="self" collection="identifiers" />
+                    <include syntax="self" collection="syntax" />
+                </subscopes>
+            </scope>
+            <scope name="eex.expression.quotation">
+                <starts-with>
+                    <expression>&lt;%%</expression>
+                    <capture number="0" name="eex.tag.framework.expression.start" />
+                </starts-with>
+                <ends-with>
+                    <expression>%&gt;</expression>
+                    <capture number="0" name="eex.tag.framework.expression.end" />
+                </ends-with>
+                <subscopes>
+                </subscopes>
+            </scope>
+            <scope name="eex.expression">
+                <starts-with>
+                    <expression>&lt;%</expression>
+                    <capture number="0" name="eex.tag.framework.expression.start" />
+                </starts-with>
+                <ends-with>
+                    <expression>%&gt;</expression>
+                    <capture number="0" name="eex.tag.framework.expression.end" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" collection="keywords" />
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <!-- 
+        oooo                                                                        .o8           
+        `888                                                                       "888           
+         888  oooo   .ooooo.  oooo    ooo oooo oooo    ooo  .ooooo.  oooo d8b  .oooo888   .oooo.o 
+         888 .8P'   d88' `88b  `88.  .8'   `88. `88.  .8'  d88' `88b `888""8P d88' `888  d88(  "8 
+         888888.    888ooo888   `88..8'     `88..]88..8'   888   888  888     888   888  `"Y88b.  
+         888 `88b.  888    .o    `888'       `888'`888'    888   888  888     888   888  o.  )88b 
+        o888o o888o `Y8bod8P'     .8'         `8'  `8'     `Y8bod8P' d888b    `Y8bod88P" 8""888P' 
+                              .o..P'                                                              
+                              `Y8P'                                                               
+        -->
+        <collection name="keywords">
+            <scope name="eex.keyword">
+                <strings>
+                    <string>do</string>
+                    <string>else</string>
+                    <string>end</string>
+                    <string>for</string>
+                    <string>fn</string>
+                    <string>if</string>
+                </strings>
+            </scope>
+        </collection>
+        
+        <!--
+                              oooo                                 
+                              `888                                 
+        oooo    ooo  .oooo.    888  oooo  oooo   .ooooo.   .oooo.o 
+         `88.  .8'  `P  )88b   888  `888  `888  d88' `88b d88(  "8 
+          `88..8'    .oP"888   888   888   888  888ooo888 `"Y88b.  
+           `888'    d8(  888   888   888   888  888    .o o.  )88b 
+            `8'     `Y888""8o o888o  `V88V"V8P' `Y8bod8P' 8""888P'                                  
+        -->
+        <collection name="values">
+            <scope name="eex.value.boolean">
+                <strings>
+                    <string>true</string>
+                    <string>false</string>
+                </strings>
+            </scope>
+            <include syntax="self" collection="strings" />
+        </collection>
+        
+        <!--
+                     .             o8o                                  
+                   .o8             `"'                                  
+        .oooo.o .o888oo oooo d8b oooo  ooo. .oo.    .oooooooo  .oooo.o 
+        d88(  "8   888   `888""8P `888  `888P"Y88b  888' `88b  d88(  "8 
+        `"Y88b.    888    888      888   888   888  888   888  `"Y88b.  
+        o.  )88b   888 .  888      888   888   888  `88bod8P'  o.  )88b 
+        8""888P'   "888" d888b    o888o o888o o888o `8oooooo.  8""888P' 
+                                                    d"     YD           
+                                                    "Y88888P'  
+        -->
+        <collection name="strings">
+            <scope name="elixir.string.multiline" spell-check="true">
+                <symbol type="comment">
+                    <context behavior="subtree" />
+                </symbol>
+                <starts-with>
+                    <expression>&quot;&quot;&quot;</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>&quot;&quot;&quot;</expression>
+                </ends-with>
+            </scope>
+            <scope name="eex.string.double-quoted">
+                <starts-with>
+                    <expression>&quot;</expression>
+                    <capture number="0" name="eex.string.double-quoted.delimiter" />
+                </starts-with>
+                <ends-with>
+                    <expression>(?:[^&quot;\\]|\\.)*(&quot;|$)</expression>
+                    <capture number="1" name="eex.string.double-quoted.delimiter" />
+                </ends-with>
+                <subscopes>
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <!-- 
+         o8o        .o8                            .    o8o   .o88o.  o8o                              
+         `"'       "888                          .o8    `"'   888 `"  `"'                              
+        oooo   .oooo888   .ooooo.  ooo. .oo.   .o888oo oooo  o888oo  oooo   .ooooo.  oooo d8b  .oooo.o 
+        `888  d88' `888  d88' `88b `888P"Y88b    888   `888   888    `888  d88' `88b `888""8P d88(  "8 
+         888  888   888  888ooo888  888   888    888    888   888     888  888ooo888  888     `"Y88b.  
+         888  888   888  888    .o  888   888    888 .  888   888     888  888    .o  888     o.  )88b 
+        o888o `Y8bod88P" `Y8bod8P' o888o o888o   "888" o888o o888o   o888o `Y8bod8P' d888b    8""888P' 
+        -->
+        <collection name="identifiers">
+            <!-- https://hexdocs.pm/elixir/1.12/syntax-reference.html#atoms -->
+            <scope name="eex.identifier.constant.atom.quoted">
+                <expression>:[&quot;&apos;].+[&quot;&apos;]\b</expression>
+            </scope>
+            <scope name="eex.identifier.constant.atom.unquoted">
+                <expression>:[A-Za-z][A-Za-z0-9_@]+[!?]?\b</expression>
+            </scope>
+            <scope name="eex.identifier.module.instance">
+                <expression>[A-Z]\w*</expression>
+            </scope>
+            <scope name="eex.identifier.variable.instance">
+                <expression>@[a-z]\w*</expression>
+            </scope>
+            <scope name="eex.function">
+                <expression>([a-z]\w*[!?]?)\(</expression>
+                <capture number="1" name="eex.identifier.function.name" />
+            </scope>
+        </collection>
+        
+        <!--
+                                             .                         
+                                           .o8
+        .oooo.o oooo    ooo ooo. .oo.   .o888oo  .oooo.   oooo    ooo 
+        d88(  "8  `88.  .8'  `888P"Y88b    888   `P  )88b   `88b..8P'  
+        `"Y88b.    `88..8'    888   888    888    .oP"888     Y888'    
+        o.  )88b    `888'     888   888    888 . d8(  888   .o8"'88b   
+        8""888P'     .8'     o888o o888o   "888" `Y888""8o o88'   888o 
+                 .o..P'                                                
+                 `Y8P'
+        -->
+        <collection name="syntax">
+            <scope name="eex.operator">
+                <expression>\b(\|\|)\b</expression>
+            </scope>
+        </collection>
+    </collections>
 </syntax>
