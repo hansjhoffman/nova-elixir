@@ -16,7 +16,9 @@
   "scripts": {
     "build": "rollup --config rollup.config.ts --configPlugin typescript",
     "compile": "tsc",
-    "format": "prettier --write 'src/**/*.ts'",
+    "format": "yarn run format:ts",
+    "format:ts": "prettier --write 'src/**/*.ts'",
+    "format:xml": "prettier --write 'elixir.novaextension/**/*.xml'",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "prepare": "is-ci || husky install",
@@ -30,6 +32,7 @@
     "vscode-languageserver-protocol": "^3.16.0"
   },
   "devDependencies": {
+    "@prettier/plugin-xml": "^1.0.2",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@rollup/plugin-typescript": "^8.2.4",
@@ -52,6 +55,9 @@
   "lint-staged": {
     "src/**/*.ts": [
       "eslint --fix",
+      "prettier --write"
+    ],
+    "elixir.novaextension/**/*.xml": [
       "prettier --write"
     ]
   },

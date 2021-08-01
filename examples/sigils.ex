@@ -63,7 +63,7 @@ defmodule Nova.Elixir.Sigils do
     str1 = ~S<the cat in the hat on the mat>
     str2 = ~s{the cat in the hat on the mat}
     str3 = ~S[the cat in the hat on the mat]
-    str4 = ~S(String with escape codes \x26 #{"inter" <> :polation})
+    str4 = ~S(String with escape codes \x26 #{"inter" <> "polation"})
     str5 = ~s|the cat in the hat on the mat|
     str6 = ~s/the cat in the hat on the mat/
     str7 = ~s"the cat in the hat on the mat"

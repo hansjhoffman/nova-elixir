@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <syntax name="html+eex">
     <meta>
         <name>HTML (EEx)</name>
@@ -13,10 +13,10 @@
     
     <indentation>
         <increase>
-            <expression></expression>
+            <expression />
         </increase>
         <decrease>
-            <expression></expression>
+            <expression />
         </decrease>
     </indentation>
     

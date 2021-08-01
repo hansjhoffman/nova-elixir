@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <syntax name="elixir">
     <meta>
         <name>Elixir</name>
@@ -14,10 +14,10 @@
     
     <indentation>
         <increase>
-            <expression></expression>
+            <expression />
         </increase>
         <decrease>
-            <expression></expression>
+            <expression />
         </decrease>
     </indentation>
     
@@ -234,7 +234,7 @@
                         ) 
                     )
                 </expression> -->
-                <expression></expression>
+                <expression />
             </scope>
             <scope name="elixir.value.list">
                 <symbol type="expression">
