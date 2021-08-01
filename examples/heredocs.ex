@@ -1,4 +1,4 @@
-defmodule Nova.Heredocs do
+defmodule Nova.Elixir.Heredocs do
   @moduledoc """
   This is a test.
   """

@@ -1,4 +1,4 @@
-defmodule Nova.Sigils do
+defmodule Nova.Elixir.Sigils do
   @moduledoc """
     Sigils start with ~ and are followed by a letter:
   
@@ -109,8 +109,14 @@ defmodule Nova.Sigils do
     t7 = ~T"2015-01-23 23:50:07"
     t8 = ~T'2015-01-23 23:50:07'
     
-    # Custom sigil
-    custom1 = ~p/elixir school/
-    custom2 = ~P/elixir school/
+    # Custom
+    custom1 = ~x<elixir school>
+    custom2 = ~Q{elixir school}
+    custom3 = ~B[elixir school]
+    custom4 = ~k(elixir school)
+    custom5 = ~g|elixir school|
+    custom6 = ~m/elixir school/
+    custom7 = ~h"elixir school"
+    custom8 = ~J'elixir school'
   end
 end

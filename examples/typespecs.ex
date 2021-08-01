@@ -1,4 +1,4 @@
-defmodule Nova.Typespecs do
+defmodule Nova.Elixir.Typespecs do
   @typedoc """
   A 4 digit year, e.g. 1984
   """
