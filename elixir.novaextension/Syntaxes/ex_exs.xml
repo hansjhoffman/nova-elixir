@@ -391,7 +391,7 @@
         <collection name="strings">
             <!-- Sigils -->
             <include syntax="self" collection="elixir.sigil.char-list" />
-            <include syntax="self" collection="elixir.sigil.regex" />
+            <include syntax="self" collection="elixir.sigil.regexp" />
             <include syntax="self" collection="elixir.sigil.string" />
             <include syntax="self" collection="elixir.sigil.word-list" />
             <include syntax="self" collection="elixir.sigil.naive-date-time" />
@@ -621,8 +621,8 @@
             </scope>
         </collection>
         
-        <collection name="elixir.sigil.regex">
-            <scope name="elixir.sigil.regex.lowercase.pointy-brackets">
+        <collection name="elixir.sigil.regexp">
+            <scope name="elixir.string.sigil.regexp.lowercase.pointy-brackets">
                 <starts-with>
                     <expression>(~r&lt;)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -632,7 +632,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.pointy-brackets">
+            <scope name="elixir.string.sigil.regexp.uppercase.pointy-brackets">
                 <starts-with>
                     <expression>(~R&lt;)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -646,7 +646,7 @@
                 </subscopes>
             </scope>
             
-            <scope name="elixir.sigil.regex.lowercase.curly-brackets">
+            <scope name="elixir.string.sigil.regexp.lowercase.curly-brackets">
                 <starts-with>
                     <expression>(~r\{)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -656,7 +656,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.curly-brackets">
+            <scope name="elixir.string.sigil.regexp.uppercase.curly-brackets">
                 <starts-with>
                     <expression>(~R\{)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -670,7 +670,7 @@
                 </subscopes>
             </scope>
             
-            <scope name="elixir.sigil.regex.lowercase.square-brackets">
+            <scope name="elixir.string.sigil.regexp.lowercase.square-brackets">
                 <starts-with>
                     <expression>(~r\[)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -680,7 +680,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.square-brackets">
+            <scope name="elixir.string.sigil.regexp.uppercase.square-brackets">
                 <starts-with>
                     <expression>(~R\[)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -694,7 +694,7 @@
                 </subscopes>
             </scope>
             
-            <scope name="elixir.sigil.regex.lowercase.parens">
+            <scope name="elixir.string.sigil.regexp.lowercase.parens">
                 <starts-with>
                     <expression>(~r\()</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -704,7 +704,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.parens">
+            <scope name="elixir.string.sigil.regexp.uppercase.parens">
                 <starts-with>
                     <expression>(~R\()</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -718,7 +718,7 @@
                 </subscopes>
             </scope>
             
-            <scope name="elixir.sigil.regex.lowercase.pipes">
+            <scope name="elixir.string.sigil.regexp.lowercase.pipes">
                 <starts-with>
                     <expression>(~r\|)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -728,7 +728,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.pipes">
+            <scope name="elixir.string.sigil.regexp.uppercase.pipes">
                 <starts-with>
                     <expression>(~R\|)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -742,7 +742,7 @@
                 </subscopes>
             </scope>
             
-            <scope name="elixir.sigil.regex.lowercase.forward-slashes">
+            <scope name="elixir.string.sigil.regexp.lowercase.forward-slashes">
                 <starts-with>
                     <expression>(~r\/)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -752,7 +752,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.forward-slashes">
+            <scope name="elixir.string.sigil.regexp.uppercase.forward-slashes">
                 <starts-with>
                     <expression>(~R\/)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -766,7 +766,7 @@
                 </subscopes>
             </scope>
             
-            <scope name="elixir.sigil.regex.lowercase.double-quotes">
+            <scope name="elixir.string.sigil.regexp.lowercase.double-quotes">
                 <starts-with>
                     <expression>(~r&quot;)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -776,7 +776,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.double-quotes">
+            <scope name="elixir.string.sigil.regexp.uppercase.double-quotes">
                 <starts-with>
                     <expression>(~R\&quot;)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -790,7 +790,7 @@
                 </subscopes>
             </scope>
             
-            <scope name="elixir.sigil.regex.lowercase.single-quotes">
+            <scope name="elixir.string.sigil.regexp.lowercase.single-quotes">
                 <starts-with>
                     <expression>(~r&apos;)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
@@ -800,7 +800,7 @@
                     <capture number="1" name="elixir.string.sigil.end" />
                 </ends-with>
             </scope>
-            <scope name="elixir.sigil.regex.uppercase.single-quotes">
+            <scope name="elixir.string.sigil.regexp.uppercase.single-quotes">
                 <starts-with>
                     <expression>(~R\&apos;)</expression>
                     <capture number="1" name="elixir.string.sigil.begin" />
