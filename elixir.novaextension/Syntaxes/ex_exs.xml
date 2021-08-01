@@ -66,14 +66,16 @@
                 <capture number="1" name="elixir.puncuation.definition.begin" />
                 <capture number="2" name="elixir.comment.content" />
             </scope>
-            <scope name="elixir.comment.docstring" spell-check="true">
+            <scope name="elixir.comment.documentation.heredoc" spell-check="true">
                 <starts-with>
-                    <expression>@(module|type)?doc\s+&quot;&quot;&quot;</expression>
-                    <capture number="1" name="elixir.identifier.cdocstring" />
+                    <expression>@(module|type)?doc\s+(~S)?&quot;&quot;&quot;</expression>
                 </starts-with>
                 <ends-with>
                     <expression>&quot;&quot;&quot;</expression>
                 </ends-with>
+            </scope>
+            <scope name="elixir.comment.documentation.false">
+                <expression>@(module|type)?doc\s+(false)$</expression>
             </scope>
         </collection>
         
