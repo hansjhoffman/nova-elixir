@@ -94,6 +94,7 @@
         <collection name="keywords">
             <scope name="elixir.keyword.construct">
                 <strings>
+                    <string>alias</string>
                     <string>def</string>
                     <string>defdelegate</string>
                     <string>defguard</string>
@@ -108,9 +109,11 @@
                     <string>do</string>
                     <string>end</string>
                     <string>fn</string>
+                    <string>import</string>
                     <string>quote</string>
                     <string>test</string>
                     <string>unquote</string>
+                    <string>use</string>
                 </strings>
             </scope>
             <scope name="elixir.keyword.condition">
@@ -202,7 +205,7 @@
             <scope name="elixir.value.number.decimal">
                 <!-- https://regexr.com/62tpa -->
                 <!-- <expression>\-?(?:\d+(?:\.\d)?|(?:\.\d+))\b</expression> -->
-                <expression>
+                <!-- <expression>
                     (?x:                      # turn on extended mode, allows arbitrary whitespace
                         (
                             10{0,2}(?:_0{3})+ # match numbers like 1_000_000
@@ -216,7 +219,8 @@
                             \b
                         ) 
                     )
-                </expression>
+                </expression> -->
+                <expression></expression>
             </scope>
             <scope name="elixir.value.list">
                 <symbol type="expression">
