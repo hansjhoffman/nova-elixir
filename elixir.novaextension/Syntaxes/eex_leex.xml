@@ -164,7 +164,7 @@
         <collection name="identifiers">
             <!-- https://hexdocs.pm/elixir/1.12/syntax-reference.html#atoms -->
             <scope name="eex.identifier.constant.atom.quoted">
-                <expression>:["'].+["']\b</expression>
+                <expression>:[&quot;&apos;].+[&quot;&apos;]\b</expression>
             </scope>
             <scope name="eex.identifier.constant.atom.unquoted">
                 <expression>:[A-Za-z][A-Za-z0-9_@]+[!?]?\b</expression>

@@ -183,9 +183,40 @@
             <scope name="elixir.value.number.octal">
                 <expression>\b0o[0-7]+\b</expression>
             </scope>
-            <scope name="elixir.value.number">
-                <expression>\b\-?(?:\d+(?:\.\d)?|(?:\.\d+))\b</expression>
-                <!-- needs to handle _ as possible character e.g. 10_000 -->
+            <scope name="elixir.value.number.float">
+                <!-- https://regexr.com/62tp7 -->
+                <expression>
+                    (?x:                # turn on extended mode, allows arbitrary whitespace
+                        (
+                            [-]?        # optional minus sign
+                            [0-9]*[.]   # zero or more digits followed by a '.'
+                            [0-9]+      # at least one digit
+                            [eE]        # exponent indicator
+                            [-+]?       # optional minus/plus sign
+                            [0-9]+      # at least one digit
+                        )
+                        \b              # bounded
+                    )
+                </expression>
+            </scope>
+            <scope name="elixir.value.number.decimal">
+                <!-- https://regexr.com/62tpa -->
+                <!-- <expression>\-?(?:\d+(?:\.\d)?|(?:\.\d+))\b</expression> -->
+                <expression>
+                    (?x:                      # turn on extended mode, allows arbitrary whitespace
+                        (
+                            10{0,2}(?:_0{3})+ # match numbers like 1_000_000
+                            |                 # or match decimals
+                            (
+                                [-]?          # optional minus sign
+                                [0-9]*        # zero or more digits
+                                [.]?          # optional '.'
+                                [0-9]*        # zero or more digits
+                            )
+                            \b
+                        ) 
+                    )
+                </expression>
             </scope>
             <scope name="elixir.value.list">
                 <symbol type="expression">
