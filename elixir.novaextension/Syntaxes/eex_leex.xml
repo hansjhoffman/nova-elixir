@@ -28,6 +28,9 @@
     </scopes>
     
     <collections>
+        <!-- https://docs.nova.app/syntax-reference/symbols/#auto-closing -->
+        <!-- Figure out how to do this w/ <% %> -->
+        
         <collection name="eex.smart-engine">
             <scope name="eex.expression.evaluated">
                 <starts-with>
