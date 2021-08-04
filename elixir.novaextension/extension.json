@@ -15,6 +15,56 @@
   "entitlements": {
     "process": true
   },
+  "config": [
+    {
+      "key": "hansjhoffman.elixir.config.mixPath",
+      "title": "Mix Path",
+      "description": "The path (absolute) to your mix binary.",
+      "type": "path"
+    },
+    {
+      "key": "hansjhoffman.elixir.config.formatOnSave",
+      "title": "Format on Save",
+      "description": "Format document when saved.",
+      "type": "boolean",
+      "default": false
+    }
+  ],
+  "configWorkspace": [
+    {
+      "key": "hansjhoffman.elixir.config.mixPath",
+      "title": "Mix Path",
+      "description": "The path (absolute) to your mix binary.",
+      "type": "path"
+    },
+    {
+      "key": "hansjhoffman.elixir.config.formatOnSave",
+      "title": "Format on Save",
+      "description": "Format document when saved.",
+      "type": "boolean",
+      "default": false
+    }
+  ],
+  "commands": {
+    "editor": [
+      {
+        "title": "Find References",
+        "command": "hansjhoffman.elixir.commands.findReferences",
+        "filters": {
+          "syntaxes": ["elixir", "eex"]
+        }
+      },
+      {
+        "title": "Format Document",
+        "command": "hansjhoffman.elixir.commands.formatDocument",
+        "shortcut": "opt-shift-f",
+        "when": "editorHasFocus",
+        "filters": {
+          "syntaxes": ["elixir", "eex"]
+        }
+      }
+    ]
+  },
   "sidebars": [
     {
       "id": "hansjhoffman.elixir.sidebar",
@@ -28,23 +78,5 @@
         }
       ]
     }
-  ],
-  "commands": {
-    "editor": [
-      {
-        "title": "Find References",
-        "command": "hansjhoffman.elixir.commands.findReferences",
-        "filters": {
-          "syntaxes": ["elixir", "ex", "exs", "eex"]
-        }
-      },
-      {
-        "title": "Format Document",
-        "command": "hansjhoffman.elixir.commands.formatDocument",
-        "filters": {
-          "syntaxes": ["elixir", "ex", "exs", "eex"]
-        }
-      }
-    ]
-  }
+  ]
 }

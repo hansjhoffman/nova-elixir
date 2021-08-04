@@ -9,6 +9,7 @@ import { match } from "ts-pattern";
 
 import { findReferences } from "./commands/findReferences";
 import { formatDocument } from "./commands/formatDocument";
+import { isFalse } from "./typeGuards";
 
 /*
  * Types
@@ -18,18 +19,20 @@ enum ExtensionConfigKeys {
   FindReferences = "hansjhoffman.elixir.commands.findReferences",
   FormatOnSave = "hansjhoffman.elixir.config.formatOnSave",
   FormatDocument = "hansjhoffman.elixir.commands.formatDocument",
+  MixPath = "hansjhoffman.elixir.config.mixPath",
   Restart = "hansjhoffman.elixir.commands.restart",
   Sidebar = "hansjhoffman.elixir.sidebar",
   SidebarResults = "hansjhoffman.elixir.sidebar.results",
 }
 
-interface ExtensionSettings {
-  readonly workspace: Readonly<{
-    formatOnSave: boolean;
-  }>;
-  readonly global: Readonly<{
-    formatOnSave: boolean;
-  }>;
+interface Preferences {
+  readonly mixPath: O.Option<string>;
+  readonly formatOnSave: O.Option<boolean>;
+}
+
+interface UserPreferences {
+  readonly workspace: Readonly<Preferences>;
+  readonly global: Readonly<Preferences>;
 }
 
 interface MakeExecutableError {
@@ -115,35 +118,57 @@ const showNotification = (body: string): void => {
 const extensionDisposable: CompositeDisposable = new CompositeDisposable();
 let languageClient: O.Option<LanguageClient> = O.none;
 
-let configs: ExtensionSettings = {
+let preferences: UserPreferences = {
   workspace: {
+    mixPath: pipe(
+      O.fromNullable(nova.workspace.config.get(ExtensionConfigKeys.MixPath)),
+      O.chain((path) => O.fromEither(D.string.decode(path))),
+      O.chain(O.fromPredicate((path) => isFalse(Str.isEmpty(path)))),
+    ),
     formatOnSave: pipe(
       O.fromNullable(nova.workspace.config.get(ExtensionConfigKeys.FormatOnSave)),
       O.chain((value) => O.fromEither(D.boolean.decode(value))),
-      O.getOrElseW(() => false),
     ),
   },
   global: {
+    mixPath: pipe(
+      O.fromNullable(nova.config.get(ExtensionConfigKeys.MixPath)),
+      O.chain((path) => O.fromEither(D.string.decode(path))),
+      O.chain(O.fromPredicate((path) => isFalse(Str.isEmpty(path)))),
+    ),
     formatOnSave: pipe(
       O.fromNullable(nova.config.get(ExtensionConfigKeys.FormatOnSave)),
       O.chain((value) => O.fromEither(D.boolean.decode(value))),
-      O.getOrElseW(() => false),
     ),
   },
 };
 
-const workspaceConfigsLens = Lens.fromPath<ExtensionSettings>()(["workspace"]);
-const globalConfigsLens = Lens.fromPath<ExtensionSettings>()(["global"]);
+const workspaceConfigsLens = Lens.fromPath<UserPreferences>()(["workspace"]);
+const globalConfigsLens = Lens.fromPath<UserPreferences>()(["global"]);
 
 /**
  * Gets a value giving precedence to workspace over global extension values.
- * @param {ExtensionSettings} configs - extension settings
+ * @param {UserPreferences} preferences - extension settings
  */
-const selectFormatOnSave = (configs: ExtensionSettings): boolean => {
-  const workspace = workspaceConfigsLens.get(configs);
-  const global = globalConfigsLens.get(configs);
+const selectFormatOnSave = (preferences: UserPreferences): boolean => {
+  const workspace = workspaceConfigsLens.get(preferences);
+  const global = globalConfigsLens.get(preferences);
 
-  return workspace.formatOnSave || global.formatOnSave;
+  return O.isSome(workspace.formatOnSave) || O.isSome(global.formatOnSave);
+};
+
+/**
+ * Gets a value giving precedence to workspace over global extension values.
+ * @param {UserPreferences} preferences - extension settings
+ */
+const selectMixPath = (preferences: UserPreferences): O.Option<string> => {
+  const workspace = workspaceConfigsLens.get(preferences);
+  const global = globalConfigsLens.get(preferences);
+
+  return pipe(
+    workspace.mixPath,
+    O.alt(() => global.mixPath),
+  );
 };
 
 const safeStart = () => {
@@ -258,10 +283,16 @@ const handleAddTextEditor = (editor: TextEditor): void => {
       const editorDisposable = new CompositeDisposable();
       extensionDisposable.add(editor.onDidDestroy(() => editorDisposable.dispose()));
 
-      const shouldFormatOnSave = selectFormatOnSave(configs);
+      const shouldFormatOnSave = selectFormatOnSave(preferences);
 
       if (shouldFormatOnSave) {
-        editorDisposable.add(editor.onWillSave(formatDocument(languageClient)));
+        editorDisposable.add(
+          editor.onWillSave((editor: TextEditor) => {
+            const mixPath = selectMixPath(preferences);
+
+            return formatDocument(editor, mixPath);
+          }),
+        );
       }
     }),
   );
@@ -272,6 +303,14 @@ export const activate = (): void => {
   showNotification(`${nova.localize("Starting extension")}...`);
 
   extensionDisposable.add(nova.workspace.onDidAddTextEditor(handleAddTextEditor));
+
+  extensionDisposable.add(
+    nova.commands.register(ExtensionConfigKeys.FormatDocument, (editor: TextEditor) => {
+      const mixPath = selectMixPath(preferences);
+
+      return formatDocument(editor, mixPath);
+    }),
+  );
 
   //   safeStart()().then(
   //     E.fold(
@@ -289,17 +328,11 @@ export const activate = (): void => {
   //           ),
   //         );
   //
-  //         extensionDisposable.add(
-  //           nova.commands.register(
-  //             ExtensionConfigKeys.FormatDocument,
-  //             formatDocument(languageClient),
-  //           ),
-  //         );
-  //
   //         console.log(`${nova.localize("Activated")} 🎉`);
   //       },
   //     ),
   //   );
+
   console.log(`${nova.localize("Activated")} 🎉`);
 };
 
