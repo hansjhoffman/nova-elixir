@@ -15,7 +15,7 @@ interface InvokeFormatterError {
 }
 
 /*
- * Main
+ * Helpers
  */
 
 const safeFormat = (
@@ -39,12 +39,10 @@ const safeFormat = (
          * Until Nova [Stream](https://bit.ly/2VrtInY) types are improved, I'm forced to do this 😞
          */
         const writer = (process.stdin as any).getWriter();
-        writer.ready
-          .then(() => {
-            writer.write(unformattedText);
-            writer.close();
-          })
-          .catch(() => reject());
+        writer.ready.then(() => {
+          writer.write(unformattedText);
+          writer.close();
+        });
 
         process.start();
       });
@@ -55,6 +53,10 @@ const safeFormat = (
     }),
   );
 };
+
+/*
+ * Main
+ */
 
 export const formatDocument = (editor: TextEditor, mixPath: O.Option<string>): Promise<void> => {
   return pipe(

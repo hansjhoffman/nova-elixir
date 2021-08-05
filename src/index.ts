@@ -171,7 +171,7 @@ const selectMixPath = (preferences: UserPreferences): O.Option<string> => {
   );
 };
 
-const safeStart = () => {
+const safeStart = (): TE.TaskEither<MakeExecutableError | StartError, ReadonlyArray<void>> => {
   return TE.sequenceSeqArray<void, MakeExecutableError | StartError>([
     TE.tryCatch<MakeExecutableError, void>(
       () => {
