@@ -203,8 +203,18 @@ const safeStart = (): TE.TaskEither<MakeExecutableError | StartError, ReadonlyAr
             initializationOptions: {
               elixirLS: {
                 dialyzerEnabled: true,
+                dialyzerFormat: "dialyxir_long",
+                dialyzerWarnOpts: [],
+                enableTestLenses: false,
                 fetchDeps: true,
                 mixEnv: "test",
+                mixTarget: undefined,
+                projectDir: undefined,
+                signatureAfterComplete: true,
+                suggestSpecs: true,
+                trace: {
+                  server: "off",
+                },
               },
             },
             syntaxes: ["elixir"],

@@ -37,6 +37,13 @@ targets:
 .PHONY: build
 build: ## Make a production build
 	yarn rollup --config rollup.config.ts --configPlugin typescript
+	
+.PHONE: build-ls
+build-ls: ## Build a elixir LS release
+	rm -rf elixir.novaextension/elixir-ls/* && \
+	cd elixir-ls && \
+	mix compile && \
+	mix elixir_ls.release -o ../elixir.novaextension/elixir-ls/
 
 .PHONY: clean
 clean: ## Remove build artifacts
